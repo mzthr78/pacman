@@ -3,7 +3,11 @@ guid: 32185dd160b624227a0c9be1f14cadb2
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - obstructPrefab: {fileID: 6873992148489423115, guid: 430a789b3d220485c951ff8dff692c2b,
+      type: 3}
+  - cookiePrefab: {instanceID: 0}
+  - powerCookiePrefab: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

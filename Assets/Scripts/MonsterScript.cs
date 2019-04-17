@@ -45,8 +45,8 @@ public class MonsterScript : MonoBehaviour
 
     private void Awake()
     {
-        leftright.SetActive(true);
-        updown.SetActive(false);
+        //leftright.SetActive(true);
+        //updown.SetActive(false);
     }
 
     // Start is called before the first frame update

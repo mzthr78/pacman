@@ -6,23 +6,23 @@ public class PlayerScript : MonoBehaviour
 {
     public GameObject pacman;
 
-    float speed = 0.1f;
+    float speed = 0.2f;
 
     void ChangeDirection(string direction)
     {
         switch (direction)
         {
-            case "Up":
-                pacman.transform.rotation = Quaternion.Euler(90, 0, 270);
-                break;
-            case "Down":
-                pacman.transform.rotation = Quaternion.Euler(90, 0, 90);
-                break;
             case "Left":
-                pacman.transform.rotation = Quaternion.Euler(90, 0, 0);
+                pacman.transform.rotation = Quaternion.Euler(90, 90, 270);
                 break;
             case "Right":
-                pacman.transform.rotation = Quaternion.Euler(90, 0, 180);
+                pacman.transform.rotation = Quaternion.Euler(90, 0, 0);
+                break;
+            case "Up":
+                pacman.transform.rotation = Quaternion.Euler(90, 0, 90);
+                break;
+            case "Down":
+                pacman.transform.rotation = Quaternion.Euler(90, 90, 0);
                 break;
             default:
                 break;
