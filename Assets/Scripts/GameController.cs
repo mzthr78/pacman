@@ -25,9 +25,15 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("mouse position = " + Input.mousePosition);
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hit))
+            {
+                Debug.Log("mouse position = " + Input.mousePosition + ":" + hit.point);
+            }
         }
     }
 
