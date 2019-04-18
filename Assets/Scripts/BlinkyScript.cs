@@ -10,16 +10,23 @@ public class BlinkyScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        Debug.Log("Blinky Start");
+
+        GameObject controller = GameObject.Find("GameController");
+        List<List<char>> map = controller.GetComponent<GameController>().GetMap();
+
+        for (int i = 0; i < map.Count; i++)
+        {
+            for (int  j = 0; j < map[i].Count; j++)
+            {
+                //Debug.Log("map[" + i + "][" + j + "]" + map[i][j]);
+            }
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            NavMeshAgent agent = GetComponent<NavMeshAgent>();
-            agent.destination = target.position;
-        }
+
     }
 }

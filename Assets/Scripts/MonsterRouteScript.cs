@@ -24,6 +24,9 @@ public class MonsterRouteScript : MonoBehaviour
 
         if (path.corners.Length > 0)
         {
+            line.startColor = Color.blue;
+            line.endColor = Color.blue;
+
             line.positionCount = path.corners.Length;
             line.SetPositions(path.corners);
 
