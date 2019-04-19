@@ -5,6 +5,12 @@
 [Bb]uilds/
 Assets/AssetStoreTools*
 
+Assets/Electric Sfx.meta
+Assets/Electric Sfx/
+
+Assets/Unity_Free_8bit_snd.meta
+Assets/Unity_Free_8bit_snd/
+
 # Visual Studio cache directory
 .vs/
 
