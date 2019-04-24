@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+public struct mapdata
+{
+    public char objtype;
+    public Vector3 coordinate;
+}
+
 public class GameController : MonoBehaviour
 {
     public GameObject obstructPrefab;
@@ -10,7 +16,7 @@ public class GameController : MonoBehaviour
     public GameObject powerCookiePrefab;
     public NavMeshSurface navMeshsurfase;
 
-    private List<List<char>> map;
+    private List<List<mapdata>> map;
 
     private void Awake()
     {
@@ -25,19 +31,9 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            RaycastHit hit;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit))
-            {
-                Debug.Log("mouse position = " + Input.mousePosition + ":" + hit.point);
-            }
-        }
     }
 
-    public List<List<char>> GetMap()
+    public List<List<mapdata>> GetMap()
     {
         return map;
     }
@@ -48,16 +44,25 @@ public class GameController : MonoBehaviour
         string text = textasset.text;
         string[] lines = text.Split('\n');
 
-        map = new List<List<char>>();
+        map = new List<List<mapdata>>();
 
+        int RowNo = 0;
         foreach(string line in lines)
         {
-            List<char> row = new List<char>();
+            List<mapdata> row = new List<mapdata>();
+            int ColNo = 0;
             foreach(char c in line)
             {
-                row.Add(c);
+                mapdata tmp = new mapdata();
+
+                tmp.objtype = c;
+                tmp.coordinate = new Vector3(-13.5f + ColNo , 0, 15 - RowNo);
+
+                row.Add(tmp);
+                ColNo++;
             }
             map.Add(row);
+            RowNo++;
         }
 
         int lineNo = 15;
