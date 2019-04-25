@@ -41,6 +41,8 @@ public class BlinkyScript : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        LeftRight.SetActive(true);
+
         GameObject controller = GameObject.Find("GameController");
         List<List<mapdata>> map = controller.GetComponent<GameController>().GetMap();
 
@@ -52,6 +54,16 @@ public class BlinkyScript : MonoBehaviour
             }
         }
         status = MonsterStatus.Idle;
+    }
+
+    private void Updateaaa()
+    {
+
+    }
+
+    void SetMyCorners()
+    {
+        Vector3 corner = new Vector3();
     }
 
     // Update is called once per frame
@@ -90,11 +102,6 @@ public class BlinkyScript : MonoBehaviour
         }
     }
 
-    void MoveRight()
-    {
-
-    }
-
     void SearchTarget()
     {
         agent = GetComponent<NavMeshAgent>();
@@ -111,8 +118,8 @@ public class BlinkyScript : MonoBehaviour
 
         for (int i = 0; i < corners.Length; i++)
         {
-            float posx = corners[i].x;
-            float posz = corners[i].z;
+            float posx = Mathf.Floor(corners[i].x);
+            float posz = Mathf.Floor(corners[i].z + 0.5f) - 1;
             Vector3 mycorner = new Vector3(posx, 0, posz);
             mycorners.Add(mycorner);
         }
