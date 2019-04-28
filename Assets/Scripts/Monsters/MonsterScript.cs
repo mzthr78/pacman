@@ -58,26 +58,26 @@ public class MonsterScript : MonoBehaviour
         Debug.Log("monster trigger enter");
     }
 
-    void ChangeDirection(string direction)
+    public void ChangeDirection(string direction)
     {
         switch (direction)
         {
-            case "Left":
+            case "left":
                 leftright.SetActive(true);
                 updown.SetActive(false);
                 leftright.transform.rotation = Quaternion.Euler(270, -90, -90);
                 break;
-            case "Right":
+            case "right":
                 leftright.SetActive(true);
                 updown.SetActive(false);
                 leftright.transform.rotation = Quaternion.Euler(90, 0, 0);
                 break;
-            case "Up":
+            case "up":
                 leftright.SetActive(false);
                 updown.SetActive(true);
                 updown.transform.rotation = Quaternion.Euler(270, -90, -90);
                 break;
-            case "Down":
+            case "down":
                 leftright.SetActive(false);
                 updown.SetActive(true);
                 updown.transform.rotation = Quaternion.Euler(90, 0, 0);

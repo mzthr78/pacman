@@ -17,6 +17,10 @@ public class BlinkyScript : MonoBehaviour
     public Transform target;
     public Text mpostext;
 
+    Queue<Vector3>  posQue;
+
+    public GameObject myRoute;
+
     public GameObject LeftRight;
     public GameObject TopDown;
 
@@ -38,9 +42,23 @@ public class BlinkyScript : MonoBehaviour
 
     private List<Vector3> mycorners;
 
+    private void Awake()
+    {
+        mycorners = myRoute.GetComponent<MyRouteScript>().GetMyRoute();
+
+        for (int i = 0; i < mycorners.Count; i++)
+        {
+            Debug.Log("mycorners[" + i + "]" + mycorners[i]);
+        }
+
+        seq = 0;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
+        posQue = new Queue<Vector3>();
+
         LeftRight.SetActive(true);
 
         GameObject controller = GameObject.Find("GameController");
@@ -56,26 +74,44 @@ public class BlinkyScript : MonoBehaviour
         status = MonsterStatus.Idle;
     }
 
-    private void Updateaaa()
+    private void Update()
     {
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out hit))
+        {
+            mpostext.text = "(" + hit.point.x + ", " + hit.point.z + ")";
+        }
 
+        if (freeze && Input.GetMouseButtonDown(0))
+        {
+            SearchTarget();
+            freeze = false;
+            seq = 0;
+        }
+
+        if (!freeze)
+        {
+            if (posQue.Count > 0) {
+                Vector3 nxt = posQue.Dequeue();
+                Debug.Log("nxgt = " + nxt);
+            } else
+            {
+                Debug.Log("もうないよ！");
+                freeze = true;
+            }
+        }
     }
-
-    void SetMyCorners()
-    {
-        Vector3 corner = new Vector3();
-    }
-
     // Update is called once per frame
-    void Update()
+    void Updatexxx()
     {
         RaycastHit hit;         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);         if (Physics.Raycast(ray, out hit))         {
             mpostext.text = "(" + hit.point.x + ", " + hit.point.z + ")";         } 
         if (freeze && Input.GetMouseButtonDown(0))
         {
             SearchTarget();
-            seq = 0;
             freeze = false;
+            seq = 0;
         }
 
         if (!freeze)
@@ -83,12 +119,36 @@ public class BlinkyScript : MonoBehaviour
             if (seq < mycorners.Count)
             {
                 Vector3 sourcePosition = new Vector3(transform.position.x, 0, transform.position.z);
-                Vector3 targetPosition = new Vector3(mycorners[seq].x, 0, mycorners[seq].z); //0.5f adjust monster's position
+                Vector3 targetPosition = new Vector3(mycorners[seq].x, 0, mycorners[seq].z);
                 float distance = Vector3.Distance(sourcePosition, targetPosition);
-                if (distance > 0.3f)
+                if (distance > 0.15f)
                 {
-                    float step = Time.deltaTime * 10;
-                    transform.position = Vector3.MoveTowards(transform.position, mycorners[seq], step);
+                    Debug.Log("seek " + seq);
+                    float srcx = sourcePosition.x;
+                    float dstx = targetPosition.x;
+
+                    float srcz = sourcePosition.z;
+                    float dstz = targetPosition.z;
+
+                    float step = Time.deltaTime * 7;
+                    //Debug.Log(seq + ":" + transform.position + " -> " + mycorners[seq] + ", " + distance);
+
+                    //Debug.Log("srcx = " + srcx + " dstx = " + dstx + " srcz = " + srcz + " dstz = " + dstz);
+
+                    if (dstx - srcx > 0.2)
+                    {
+                        GetComponent<MonsterScript>().ChangeDirection("right");
+                    } else if (dstx - srcx < -0.2)
+                    {
+                        GetComponent<MonsterScript>().ChangeDirection("left");
+                    } else if (dstz - srcz > 0.2)
+                    {
+                        GetComponent<MonsterScript>().ChangeDirection("up");
+                    } else if (dstz - srcz < -0.2)
+                    {
+                        GetComponent<MonsterScript>().ChangeDirection("down");
+                    }
+                    transform.position = Vector3.MoveTowards(transform.position, targetPosition, step);
                 }
                 else
                 {
@@ -112,22 +172,44 @@ public class BlinkyScript : MonoBehaviour
 
         mycorners = new List<Vector3>();
 
-
         float prex = transform.position.x;
-        float prey = transform.position.z;
+        float prez = transform.position.z;
 
         for (int i = 0; i < corners.Length; i++)
         {
-            float posx = Mathf.Floor(corners[i].x);
-            float posz = Mathf.Floor(corners[i].z + 0.5f) - 1;
-            Vector3 mycorner = new Vector3(posx, 0, posz);
-            mycorners.Add(mycorner);
+            float x = Mathf.Floor(corners[i].x) + 0.5f;
+            float y = 0;
+            float z = Mathf.Round(corners[i].z);
+
+            //mycorners.Add(new Vector3(x, y, z));
+            posQue.Enqueue(new Vector3(x, y, z));
+
+            //Debug.Log(corners[i] + " -> " + mycorners[mycorners.Count - 1]);
         }
 
+        /* botsu
         for (int i = 0; i < corners.Length; i++)
         {
-            Debug.Log("i:" + corners[i] + " -> " + mycorners[i]);
+            float nxtx;
+            float nxtz;
+
+            if (Mathf.Abs(corners[i].x - prex) > Mathf.Abs(corners[i].z - prez))
+            {
+                nxtx = Mathf.Ceil(corners[i].x) + 0.5f;
+                nxtz = prez;
+            }
+            else
+            {
+                nxtx = prex;
+                nxtz = Mathf.Round(corners[i].z);
+            }
+
+            mycorners.Add(new Vector3(nxtx, 0, nxtz));
+
+            prex = nxtx;
+            prez = nxtz;
         }
+        */
 
         status = MonsterStatus.Chase;
     }

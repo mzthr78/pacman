@@ -64,6 +64,6 @@ public class PlayerScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("player trigger enter");
+        //Debug.Log("player trigger enter");
     }
 }
