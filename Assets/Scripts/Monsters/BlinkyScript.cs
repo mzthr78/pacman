@@ -31,19 +31,21 @@ public class BlinkyScript : MonoBehaviour
     private float startTime;
     private float journeyLength;
 
-    int[] vx = {  0,  1,  0, -1 };
-    int[] vy = {  1,  0, -1,  0 };
+    int[] vx = {  1,  0,  -1, 0 };
+    int[] vy = {  0,  -1, 0,  1 };
 
     MonsterStatus status;
-    private Vector3[] corners;
-    private int seq = 0;
+    //private Vector3[] corners;
+    private Vector3[] checkPoints;
+    //private int seq = 0;
 
     private bool freeze = true;
 
-    private List<Vector3> mycorners;
+    //private List<Vector3> mycorners;
 
     private void Awake()
     {
+        /*
         mycorners = myRoute.GetComponent<MyRouteScript>().GetMyRoute();
 
         for (int i = 0; i < mycorners.Count; i++)
@@ -52,6 +54,7 @@ public class BlinkyScript : MonoBehaviour
         }
 
         seq = 0;
+        */      
     }
 
     // Start is called before the first frame update
@@ -87,21 +90,20 @@ public class BlinkyScript : MonoBehaviour
         {
             SearchTarget();
             freeze = false;
-            seq = 0;
+            //seq = 0;
         }
 
         if (!freeze)
         {
+
             if (posQue.Count > 0) {
                 Vector3 nxt = posQue.Dequeue();
                 Debug.Log("nxgt = " + nxt);
-            } else
-            {
-                Debug.Log("もうないよ！");
-                freeze = true;
             }
         }
     }
+
+    /*
     // Update is called once per frame
     void Updatexxx()
     {
@@ -137,16 +139,16 @@ public class BlinkyScript : MonoBehaviour
 
                     if (dstx - srcx > 0.2)
                     {
-                        GetComponent<MonsterScript>().ChangeDirection("right");
+                        GetComponent<MonsterScript>().ChangeDirection(Direction.right);
                     } else if (dstx - srcx < -0.2)
                     {
-                        GetComponent<MonsterScript>().ChangeDirection("left");
+                        GetComponent<MonsterScript>().ChangeDirection(Direction.left);
                     } else if (dstz - srcz > 0.2)
                     {
-                        GetComponent<MonsterScript>().ChangeDirection("up");
+                        GetComponent<MonsterScript>().ChangeDirection(Direction.up);
                     } else if (dstz - srcz < -0.2)
                     {
-                        GetComponent<MonsterScript>().ChangeDirection("down");
+                        GetComponent<MonsterScript>().ChangeDirection(Direction.down);
                     }
                     transform.position = Vector3.MoveTowards(transform.position, targetPosition, step);
                 }
@@ -161,6 +163,7 @@ public class BlinkyScript : MonoBehaviour
             }
         }
     }
+    */
 
     void SearchTarget()
     {
@@ -168,18 +171,33 @@ public class BlinkyScript : MonoBehaviour
 
         path = new NavMeshPath();
         agent.CalculatePath(target.position, path);
-        corners = path.corners;
+        //corners = path.corners;
+        checkPoints = path.corners;
 
-        mycorners = new List<Vector3>();
+        //mycorners = new List<Vector3>();
 
         float prex = transform.position.x;
         float prez = transform.position.z;
 
+        /*
         for (int i = 0; i < corners.Length; i++)
         {
             float x = Mathf.Floor(corners[i].x) + 0.5f;
             float y = 0;
             float z = Mathf.Round(corners[i].z);
+
+            //mycorners.Add(new Vector3(x, y, z));
+            posQue.Enqueue(new Vector3(x, y, z));
+
+            //Debug.Log(corners[i] + " -> " + mycorners[mycorners.Count - 1]);
+        }
+        */
+
+        for (int i = 0; i < checkPoints.Length; i++)
+        {
+            float x = Mathf.Floor(checkPoints[i].x) + 0.5f;
+            float y = 0;
+            float z = Mathf.Round(checkPoints[i].z);
 
             //mycorners.Add(new Vector3(x, y, z));
             posQue.Enqueue(new Vector3(x, y, z));

@@ -8,6 +8,8 @@ public class MonsterScript : MonoBehaviour
     public GameObject updown;
     float speed = 0.3f;
 
+    private Direction dir;
+
     enum State {
         Waiting
     };
@@ -26,24 +28,24 @@ public class MonsterScript : MonoBehaviour
         
     }
 
-    // Update is called once per frame
+    // 動作確認用
     void Updatexxx()
     {
         if (Input.GetKey(KeyCode.UpArrow))
         {
-            ChangeDirection("Up");
+            ChangeDirection(Direction.up);
         }
         else if (Input.GetKey(KeyCode.DownArrow))
         {
-            ChangeDirection("Down");
+            ChangeDirection(Direction.down);
         }
         else if (Input.GetKey(KeyCode.LeftArrow))
         {
-            ChangeDirection("Left");
+            ChangeDirection(Direction.left);
         }
         else if (Input.GetKey(KeyCode.RightArrow))
         {
-            ChangeDirection("Right");
+            ChangeDirection(Direction.right);
         }
         else
         {
@@ -58,26 +60,26 @@ public class MonsterScript : MonoBehaviour
         Debug.Log("monster trigger enter");
     }
 
-    public void ChangeDirection(string direction)
+    public void ChangeDirection(Direction dir)
     {
-        switch (direction)
+        switch (dir)
         {
-            case "left":
+            case Direction.left:
                 leftright.SetActive(true);
                 updown.SetActive(false);
                 leftright.transform.rotation = Quaternion.Euler(270, -90, -90);
                 break;
-            case "right":
+            case Direction.right:
                 leftright.SetActive(true);
                 updown.SetActive(false);
                 leftright.transform.rotation = Quaternion.Euler(90, 0, 0);
                 break;
-            case "up":
+            case Direction.up:
                 leftright.SetActive(false);
                 updown.SetActive(true);
                 updown.transform.rotation = Quaternion.Euler(270, -90, -90);
                 break;
-            case "down":
+            case Direction.down:
                 leftright.SetActive(false);
                 updown.SetActive(true);
                 updown.transform.rotation = Quaternion.Euler(90, 0, 0);
@@ -85,6 +87,7 @@ public class MonsterScript : MonoBehaviour
             default:
                 break;
         }
+        this.dir = dir;
     }
 
 }

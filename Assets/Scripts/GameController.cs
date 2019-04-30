@@ -3,6 +3,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
+public enum Direction {
+    left,
+    right,
+    up,
+    down
+}
+
 public struct mapdata
 {
     public char objtype;
