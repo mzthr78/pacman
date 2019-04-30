@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public enum Direction {
     left,
@@ -16,12 +17,15 @@ public struct mapdata
     public Vector3 coordinate;
 }
 
+
 public class GameController : MonoBehaviour
 {
     public GameObject obstructPrefab;
     public GameObject cookiePrefab;
     public GameObject powerCookiePrefab;
     public NavMeshSurface navMeshsurfase;
+
+    public Text mpostext;
 
     private List<List<mapdata>> map;
 
@@ -38,6 +42,12 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out hit))
+        {
+            mpostext.text = "(" + hit.point.x + ", " + hit.point.z + ")";
+        }
     }
 
     public List<List<mapdata>> GetMap()

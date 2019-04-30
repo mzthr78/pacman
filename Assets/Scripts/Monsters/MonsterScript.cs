@@ -60,6 +60,16 @@ public class MonsterScript : MonoBehaviour
         Debug.Log("monster trigger enter");
     }
 
+    public void SetDirection(Direction dir)
+    {
+        this.dir = dir;
+    }
+
+    public Direction GetDirection()
+    {
+        return this.dir;
+    }
+
     public void ChangeDirection(Direction dir)
     {
         switch (dir)
