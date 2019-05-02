@@ -110,7 +110,7 @@ public class BlinkyScript : MonoBehaviour
                                 checkPoint = new Vector3(prePoint.x, 0, nxtPoint.z);
                                 break;
                         }
-                        Debug.Log(checkPoint);
+                        //Debug.Log(checkPoint);
                     } else
                     {
                         if (diffX > 0)
@@ -130,7 +130,7 @@ public class BlinkyScript : MonoBehaviour
 
                         }
                         checkPoint = posQue.Dequeue();
-                        Debug.Log(checkPoint);
+                        //Debug.Log(checkPoint);
                     }
                 } else
                 {

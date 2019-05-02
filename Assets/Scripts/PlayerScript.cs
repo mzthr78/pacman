@@ -8,20 +8,20 @@ public class PlayerScript : MonoBehaviour
 
     float speed = 0.2f;
 
-    void ChangeDirection(string direction)
+    void ChangeDirection(Direction dir)
     {
-        switch (direction)
+        switch (dir)
         {
-            case "Left":
+            case Direction.left:
                 pacman.transform.rotation = Quaternion.Euler(90, 90, 270);
                 break;
-            case "Right":
+            case Direction.right:
                 pacman.transform.rotation = Quaternion.Euler(90, 0, 0);
                 break;
-            case "Up":
+            case Direction.up:
                 pacman.transform.rotation = Quaternion.Euler(90, 0, 90);
                 break;
-            case "Down":
+            case Direction.down:
                 pacman.transform.rotation = Quaternion.Euler(90, 90, 0);
                 break;
             default:
@@ -40,30 +40,31 @@ public class PlayerScript : MonoBehaviour
     {
         if (Input.GetKey(KeyCode.UpArrow))
         {
-            ChangeDirection("Up");
         }
         else if (Input.GetKey(KeyCode.DownArrow))
         {
-            ChangeDirection("Down");
         }
         else if (Input.GetKey(KeyCode.LeftArrow))
         {
-            ChangeDirection("Left");
         }
         else if (Input.GetKey(KeyCode.RightArrow))
         {
-            ChangeDirection("Right");
         }
         else
         {
 
         }
 
-        transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal") * speed, 0, Input.GetAxisRaw("Vertical") * speed));
+        //transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal") * speed, 0, Input.GetAxisRaw("Vertical") * speed));
     }
 
     private void OnTriggerEnter(Collider other)
     {
         //Debug.Log("player trigger enter");
+    }
+
+    IEnumerator Pacpac()
+    {
+        yield return null;
     }
 }
