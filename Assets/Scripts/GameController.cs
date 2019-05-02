@@ -5,6 +5,7 @@ using UnityEngine.AI;
 using UnityEngine.UI;
 
 public enum Direction {
+    none,
     left,
     right,
     up,
@@ -25,6 +26,14 @@ public class GameController : MonoBehaviour
     public GameObject powerCookiePrefab;
     public NavMeshSurface navMeshsurfase;
 
+    public GameObject blinky;
+    public GameObject inky;
+    public GameObject pinky;
+    public GameObject Clyde;
+
+    public GameObject sightBlinky;
+    public GameObject navRouteBlinky;
+
     public Text mpostext;
 
     private List<List<mapdata>> map;
@@ -37,6 +46,11 @@ public class GameController : MonoBehaviour
     void Start()
     {
         navMeshsurfase.BuildNavMesh();
+
+        Clyde.SetActive(false);
+
+        sightBlinky.SetActive(false);
+        navRouteBlinky.SetActive(false);
     }
 
     // Update is called once per frame

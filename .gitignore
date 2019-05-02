@@ -44,3 +44,5 @@ sysinfo.txt
 *.app/
 
 .DS_Store
+
+*.mp3*
