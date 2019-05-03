@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class SightScript : MonoBehaviour
 {
+    public GameObject monster;
+
     LineRenderer line;
     float distance = 30.0f;
 

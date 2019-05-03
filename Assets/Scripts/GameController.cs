@@ -26,6 +26,8 @@ public class GameController : MonoBehaviour
     public GameObject powerCookiePrefab;
     public NavMeshSurface navMeshsurfase;
 
+    public GameObject pacman;
+
     public GameObject blinky;
     public GameObject inky;
     public GameObject pinky;
@@ -33,6 +35,11 @@ public class GameController : MonoBehaviour
 
     public GameObject sightBlinky;
     public GameObject navRouteBlinky;
+
+    AudioSource aud;
+
+    public AudioClip startSE;
+    public AudioClip ijikeSE;
 
     public Text mpostext;
 
@@ -45,23 +52,67 @@ public class GameController : MonoBehaviour
 
     void Start()
     {
+        this.aud = GetComponent<AudioSource>();
+        this.aud.PlayOneShot(startSE);
+
         navMeshsurfase.BuildNavMesh();
 
         Clyde.SetActive(false);
 
-        sightBlinky.SetActive(false);
+        sightBlinky.SetActive(true);
         navRouteBlinky.SetActive(false);
+
+        StartCoroutine(LetsStart());
+    }
+
+    IEnumerator LetsStart()
+    {
+        yield return new WaitForSeconds(4.5f); // 開始音楽が鳴りやむまで
+
+        // Start Processes
+        pacman.GetComponent<PlayerScript>().UnFreeze();
     }
 
     // Update is called once per frame
     void Update()
     {
+        // これだと、余韻部分で待ちすぎになる
+        /*
+        if (!GetComponent<AudioSource>().isPlaying)
+        {
+            Debug.Log("nari owattayo!");
+        }
+        */
+
         RaycastHit hit;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out hit))
         {
             mpostext.text = "(" + hit.point.x + ", " + hit.point.z + ")";
         }
+    }
+
+    public void EatPowerCookie()
+    {
+        if (aud.isPlaying)
+        {
+            aud.Stop();
+        }
+        aud.volume = 0.7f;
+        aud.PlayOneShot(ijikeSE);
+    }
+
+    public Vector3 Coord2Xz(Vector3 coord)
+    {
+        float x = Mathf.Floor(coord.x) + 0.5f;
+        float z = Mathf.Round(coord.z) - 0.5f;
+
+        return new Vector3(0, 0, 0);
+    }
+
+    public Vector3 Xz2Coord(int x, int z)
+    {
+        return new Vector3(-13.5f + x, 0, 15 - z);
     }
 
     public List<List<mapdata>> GetMap()
@@ -87,7 +138,8 @@ public class GameController : MonoBehaviour
                 mapdata tmp = new mapdata();
 
                 tmp.objtype = c;
-                tmp.coordinate = new Vector3(-13.5f + ColNo , 0, 15 - RowNo);
+                //tmp.coordinate = new Vector3(-13.5f + ColNo , 0, 15 - RowNo);
+                tmp.coordinate = Xz2Coord(ColNo, RowNo);
 
                 row.Add(tmp);
                 ColNo++;

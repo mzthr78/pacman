@@ -8,18 +8,22 @@ public class PlayerScript : MonoBehaviour
     public GameObject pacmano;
     public GameObject pacmanc;
 
+    public AudioClip cookieSE;
+
     float speed = 0.1f;
 
     float moveX;
     float moveZ;
 
+    bool freeze = true;
+
     Direction dir;
 
-    // Start is called before the first frame update
-    void Start()
+    public void UnFreeze()
     {
         dir = Direction.left;
         StartCoroutine(Pacpac());
+        this.freeze = false;
     }
 
     int pac = 0;
@@ -62,6 +66,7 @@ public class PlayerScript : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (freeze) return;
 
         if (Input.GetKey(KeyCode.UpArrow))
         {
@@ -78,6 +83,11 @@ public class PlayerScript : MonoBehaviour
         else if (Input.GetKey(KeyCode.RightArrow))
         {
             dir = Direction.right;
+        }
+        else if (Input.GetKey(KeyCode.Space))
+        {
+            Debug.Log("space!");
+            GetComponent<AudioSource>().PlayOneShot(cookieSE);
         }
         else
         {
@@ -149,6 +159,17 @@ public class PlayerScript : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         //Debug.Log("player trigger enter");
+        switch (other.tag)
+        {
+            case "Cookie":
+                //GetComponent<AudioSource>().Play();
+                GetComponent<AudioSource>().PlayOneShot(cookieSE);
+                break;
+            default:
+                Debug.Log("trigger collider name = " + other.name + " tag = " + other.tag);
+                break;
+        }
+
     }
 
 }

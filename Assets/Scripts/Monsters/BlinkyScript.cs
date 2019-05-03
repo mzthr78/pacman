@@ -148,6 +148,7 @@ public class BlinkyScript : MonoBehaviour
 
         //ここでtargetを変えるようにする
         agent.CalculatePath(target.position, path);
+
         checkPoints = path.corners;
 
         for (int i = 0; i < checkPoints.Length; i++)

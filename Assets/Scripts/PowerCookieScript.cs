@@ -4,16 +4,19 @@ using UnityEngine;
 
 public class PowerCookieScript : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    GameObject controller;
+
+    private void Start()
     {
-        
+        controller = GameObject.Find("GameController");
     }
 
-    // Update is called once per frame
-    void Update()
+    private void OnTriggerEnter(Collider other)
     {
-        
+        //Debug.Log("cookie trigger other = " + other);
+        if (other.name == "Pacman")
+        {
+            controller.GetComponent<GameController>().EatPowerCookie();
+        }
     }
-
 }
