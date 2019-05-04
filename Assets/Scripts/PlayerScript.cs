@@ -4,13 +4,20 @@ using UnityEngine;
 
 public class PlayerScript : MonoBehaviour
 {
+    public GameController controller;
+
     public GameObject pacman;
     public GameObject pacmano;
     public GameObject pacmanc;
 
     public AudioClip cookieSE;
 
+    List<List<mapdata>> map;
+
     float speed = 0.1f;
+
+    int[] vx = { 0, 1, 0, -1 };
+    int[] vz = { -1, 0, 1, 0 };
 
     float moveX;
     float moveZ;
@@ -33,6 +40,8 @@ public class PlayerScript : MonoBehaviour
         line = GetComponent<LineRenderer>();
         line.startWidth = 0.1f;
         line.endWidth = 0.1f;
+
+        map = controller.GetMap();
     }
 
     int pac = 0;
@@ -72,10 +81,15 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
+    Direction reservedir;
+
     // Update is called once per frame
     void Update()
     {
         if (freeze) return;
+
+        float rx = Mathf.Floor(transform.position.x) + 0.5f;
+        float rz = Mathf.Round(transform.position.z);
 
         Vector3 from = transform.position;
         Vector3 to = new Vector3();
@@ -96,37 +110,118 @@ public class PlayerScript : MonoBehaviour
         }
 
         RaycastHit hit;
+        if (Physics.Linecast(from, to, out hit))
+        {
+            Transform target = hit.transform;
+            Debug.Log(target.name);
+        }
+
 
         Vector3[] positions = new Vector3[2] { from, to };
 
         line.positionCount = 2;
         line.SetPositions(positions);
 
+        Direction tmpdir = dir;
+
         if (Input.GetKey(KeyCode.UpArrow))
         {
-            dir = Direction.up;
+            tmpdir = Direction.up;
         }
         else if (Input.GetKey(KeyCode.DownArrow))
         {
-            dir = Direction.down;
+            tmpdir = Direction.down;
         }
         else if (Input.GetKey(KeyCode.LeftArrow))
         {
-            dir = Direction.left;
+            tmpdir = Direction.left;
         }
         else if (Input.GetKey(KeyCode.RightArrow))
         {
-            dir = Direction.right;
+            tmpdir = Direction.right;
         }
         else
         {
-
         }
 
         // Debug.Log("x = " + moveX + " z = " + moveZ);
 
+        Vector3 coord = controller.Coord2Xz(transform.position);
+        int ix = (int)(coord.x + 13.5f);
+        int iz = Mathf.Abs((int)(coord.z - 15));
+
+        char[] dirobj = new char[4];
+
+        for (int i = 0; i < 4; i++)
+        {
+            dirobj[i] = map[iz + vz[i]][ix + vx[i]].objchar;
+        }
+
+        switch (dirobj[(int)tmpdir])
+        {
+            case '#':
+                break;
+            default:
+                reservedir = tmpdir;
+                break;
+        }
+
+        if (reservedir != Direction.none)
+        {
+            switch (reservedir)
+            {
+                case Direction.up:
+                case Direction.down:
+                    if (Mathf.Abs(transform.position.x -  rx) < 0.1f)
+                    {
+                        dir = reservedir;
+                    }
+                    break;
+                case Direction.right:
+                case Direction.left:
+                    if (Mathf.Abs(transform.position.z - rz) < 0.1f)
+                    {
+                        dir = reservedir;
+                    }
+                    break;
+            }
+            reservedir = Direction.none;
+        }
+
+        if (dirobj[(int)dir] == '#')
+        {
+            switch (dir)
+            {
+                case Direction.right:
+                case Direction.left:
+                    if (Mathf.Abs(transform.position.x - rx) < 0.01f)
+                    {
+                        Debug.Log("a!");
+                        dir = Direction.none;
+                    }
+                    break;
+                case Direction.up:
+                case Direction.down:
+                    if (Mathf.Abs(transform.position.z - rz) < 0.01f)
+                    {
+                        dir = Direction.none;
+                    }
+                    break;
+            }
+        }
+
         Move(dir);
+
         //transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal") * speed, 0, Input.GetAxisRaw("Vertical") * speed));
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            RaycastHit hit2;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hit2))
+            {
+            }
+        }
     }
 
     void Move(Direction d)

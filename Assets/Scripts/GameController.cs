@@ -4,24 +4,27 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
 
-public enum Direction {
-    none,
-    left,
-    right,
-    up,
-    down
+public enum Direction : int {
+    none = -1,
+    up = 0,
+    right = 1,
+    down = 2,
+    left = 3
 }
 
 public struct mapdata
 {
-    public char objtype;
+    public char objchar;
     public Vector3 coordinate;
 }
 
-
 public class GameController : MonoBehaviour
 {
+    int[] vx = { 0, 1, 0, -1 };
+    int[] vz = { 1, 0, -1, 0 };
+
     public GameObject obstructPrefab;
+
     public GameObject cookiePrefab;
     public GameObject powerCookiePrefab;
     public NavMeshSurface navMeshsurfase;
@@ -31,7 +34,7 @@ public class GameController : MonoBehaviour
     public GameObject blinky;
     public GameObject inky;
     public GameObject pinky;
-    public GameObject Clyde;
+    public GameObject clyde;
 
     public GameObject sightBlinky;
     public GameObject navRouteBlinky;
@@ -57,7 +60,10 @@ public class GameController : MonoBehaviour
 
         navMeshsurfase.BuildNavMesh();
 
-        Clyde.SetActive(false);
+        blinky.SetActive(true);
+        inky.SetActive(true);
+        pinky.SetActive(true);
+        clyde.SetActive(true);
 
         sightBlinky.SetActive(true);
         navRouteBlinky.SetActive(false);
@@ -69,7 +75,6 @@ public class GameController : MonoBehaviour
     {
         yield return new WaitForSeconds(4.5f); // 開始音楽が鳴りやむまで
 
-        // Start Processes
         pacman.GetComponent<PlayerScript>().UnFreeze();
     }
 
@@ -98,16 +103,16 @@ public class GameController : MonoBehaviour
         {
             aud.Stop();
         }
-        aud.volume = 0.7f;
+        aud.volume = 0.8f;
         aud.PlayOneShot(ijikeSE);
     }
 
     public Vector3 Coord2Xz(Vector3 coord)
     {
         float x = Mathf.Floor(coord.x) + 0.5f;
-        float z = Mathf.Round(coord.z) - 0.5f;
+        float z = Mathf.Round(coord.z);
 
-        return new Vector3(0, 0, 0);
+        return new Vector3(x, 0, z);
     }
 
     public Vector3 Xz2Coord(int x, int z)
@@ -137,7 +142,7 @@ public class GameController : MonoBehaviour
             {
                 mapdata tmp = new mapdata();
 
-                tmp.objtype = c;
+                tmp.objchar = c;
                 //tmp.coordinate = new Vector3(-13.5f + ColNo , 0, 15 - RowNo);
                 tmp.coordinate = Xz2Coord(ColNo, RowNo);
 
@@ -157,15 +162,15 @@ public class GameController : MonoBehaviour
                 {
                     case '#':
                         GameObject obstruct = Instantiate(obstructPrefab);
-                        obstruct.transform.position = new Vector3(-13.5f + j, 1f, lineNo);
+                        obstruct.transform.position = new Vector3(-13.5f + j, 0.1f, lineNo);
                         break;
                     case '.':
                         GameObject cookie = Instantiate(cookiePrefab);
-                        cookie.transform.position = new Vector3(-13.5f + j, 0.5f, lineNo);
+                        cookie.transform.position = new Vector3(-13.5f + j, 0.1f, lineNo);
                         break;
                     case '@':
                         GameObject powerCookie = Instantiate(powerCookiePrefab);
-                        powerCookie.transform.position = new Vector3(-13.5f + j, 0.5f, lineNo);
+                        powerCookie.transform.position = new Vector3(-13.5f + j, 0.1f, lineNo);
                         break;
                     default:
                         break;

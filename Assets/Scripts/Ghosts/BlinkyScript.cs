@@ -30,6 +30,8 @@ public class BlinkyScript : MonoBehaviour
     private float startTime;
     private float journeyLength;
 
+    float posY = 0.5f;
+
     int[] vx = {  1,  0,  -1, 0 };
     int[] vy = {  0,  -1, 0,  1 };
 
@@ -78,7 +80,7 @@ public class BlinkyScript : MonoBehaviour
 
         if (!freeze)
         {
-            Vector3 currentPos = new Vector3(transform.position.x, 0, transform.position.z);
+            Vector3 currentPos = new Vector3(transform.position.x, posY, transform.position.z);
 
             float distance = Vector3.Distance(currentPos, checkPoint);
             float step = Time.deltaTime * 7;
@@ -102,11 +104,11 @@ public class BlinkyScript : MonoBehaviour
                         {
                             case Direction.left:
                             case Direction.right:
-                                checkPoint = new Vector3(nxtPoint.x, 0, prePoint.z);
+                                checkPoint = new Vector3(nxtPoint.x, posY, prePoint.z);
                                 break;
                             case Direction.up:
                             case Direction.down:
-                                checkPoint = new Vector3(prePoint.x, 0, nxtPoint.z);
+                                checkPoint = new Vector3(prePoint.x, posY, nxtPoint.z);
                                 break;
                         }
                         //Debug.Log(checkPoint);
@@ -153,7 +155,7 @@ public class BlinkyScript : MonoBehaviour
         for (int i = 0; i < checkPoints.Length; i++)
         {
             float x = Mathf.Floor(checkPoints[i].x) + 0.5f;
-            float y = 0;
+            float y = posY;
             float z = Mathf.Round(checkPoints[i].z) - 0.5f;
 
             posQue.Enqueue(new Vector3(x, y, z));
