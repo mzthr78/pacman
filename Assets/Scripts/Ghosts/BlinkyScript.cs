@@ -39,13 +39,12 @@ public class BlinkyScript : MonoBehaviour
 
     private bool freeze = true;
 
-    MonsterScript monster;
-
+    GhostScript ghost;
 
     private void Awake()
     {
-        monster = GetComponent<MonsterScript>();
-        monster.SetDirection(Direction.left);
+        ghost = GetComponent<GhostScript>();
+        ghost.SetDirection(Direction.left);
     }
 
     void Start()
@@ -99,7 +98,7 @@ public class BlinkyScript : MonoBehaviour
 
                     if (Mathf.Abs(diffX) > 0 && Mathf.Abs(diffZ) > 0)
                     {
-                        switch (monster.GetDirection())
+                        switch (ghost.GetDirection())
                         {
                             case Direction.left:
                             case Direction.right:
@@ -115,16 +114,16 @@ public class BlinkyScript : MonoBehaviour
                     {
                         if (diffX > 0)
                         {
-                            monster.ChangeDirection(Direction.right);
+                            ghost.ChangeDirection(Direction.right);
                         } else if (diffX < 0)
                         {
-                            monster.ChangeDirection(Direction.left);
+                            ghost.ChangeDirection(Direction.left);
                         } else if (diffZ > 0)
                         {
-                            monster.ChangeDirection(Direction.up);
+                            ghost.ChangeDirection(Direction.up);
                         } else if (diffZ < 0)
                         {
-                            monster.ChangeDirection(Direction.down);
+                            ghost.ChangeDirection(Direction.down);
                         } else
                         {
 

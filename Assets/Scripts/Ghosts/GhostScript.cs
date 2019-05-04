@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MonsterScript : MonoBehaviour
+public class GhostScript : MonoBehaviour
 {
     public GameObject leftright;
     public GameObject updown;
@@ -57,7 +57,7 @@ public class MonsterScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("monster trigger enter");
+        Debug.Log("ghost trigger enter");
     }
 
     public void SetDirection(Direction dir)

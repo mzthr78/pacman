@@ -9,6 +9,7 @@ public class PowerCookieScript : MonoBehaviour
     private void Start()
     {
         controller = GameObject.Find("GameController");
+        StartCoroutine(Blink());
     }
 
     private void OnTriggerEnter(Collider other)
@@ -22,6 +23,11 @@ public class PowerCookieScript : MonoBehaviour
 
     IEnumerator Blink()
     {
-        yield return new WaitForSeconds(0.2f);
+        while (true)
+        {
+            Renderer renderer = GetComponent<Renderer>();
+            renderer.enabled = !renderer.enabled;
+            yield return new WaitForSeconds(0.5f);
+        }
     }
 }
