@@ -19,4 +19,9 @@ public class PowerCookieScript : MonoBehaviour
             controller.GetComponent<GameController>().EatPowerCookie();
         }
     }
+
+    IEnumerator Blink()
+    {
+        yield return new WaitForSeconds(0.2f);
+    }
 }

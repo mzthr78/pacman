@@ -19,11 +19,20 @@ public class PlayerScript : MonoBehaviour
 
     Direction dir;
 
+    LineRenderer line;
+
     public void UnFreeze()
     {
         dir = Direction.left;
         StartCoroutine(Pacpac());
         this.freeze = false;
+    }
+
+    private void Start()
+    {
+        line = GetComponent<LineRenderer>();
+        line.startWidth = 0.1f;
+        line.endWidth = 0.1f;
     }
 
     int pac = 0;
@@ -68,6 +77,31 @@ public class PlayerScript : MonoBehaviour
     {
         if (freeze) return;
 
+        Vector3 from = transform.position;
+        Vector3 to = new Vector3();
+        switch (this.dir)
+        {
+            case Direction.left:
+                to = from - transform.right * 3.0f;
+                break;
+            case Direction.right:
+                to = from + transform.right * 3.0f;
+                break;
+            case Direction.up:
+                to = from + transform.forward * 3.0f;
+                break;
+            case Direction.down:
+                to = from - transform.forward * 3.0f;
+                break;
+        }
+
+        RaycastHit hit;
+
+        Vector3[] positions = new Vector3[2] { from, to };
+
+        line.positionCount = 2;
+        line.SetPositions(positions);
+
         if (Input.GetKey(KeyCode.UpArrow))
         {
             dir = Direction.up;
@@ -84,17 +118,12 @@ public class PlayerScript : MonoBehaviour
         {
             dir = Direction.right;
         }
-        else if (Input.GetKey(KeyCode.Space))
-        {
-            Debug.Log("space!");
-            GetComponent<AudioSource>().PlayOneShot(cookieSE);
-        }
         else
         {
 
         }
 
-        Debug.Log("x = " + moveX + " z = " + moveZ);
+        // Debug.Log("x = " + moveX + " z = " + moveZ);
 
         Move(dir);
         //transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal") * speed, 0, Input.GetAxisRaw("Vertical") * speed));
@@ -139,6 +168,10 @@ public class PlayerScript : MonoBehaviour
                 pacman.transform.rotation = Quaternion.Euler(90, 90, 270);
                 pacmano.transform.rotation = Quaternion.Euler(90, 90, 270);
                 break;
+            case Direction.down:
+                pacman.transform.rotation = Quaternion.Euler(90, 90, 0);
+                pacmano.transform.rotation = Quaternion.Euler(90, 90, 0);
+                break;
             case Direction.right:
                 pacman.transform.rotation = Quaternion.Euler(90, 0, 0);
                 pacmano.transform.rotation = Quaternion.Euler(90, 0, 0);
@@ -146,10 +179,6 @@ public class PlayerScript : MonoBehaviour
             case Direction.up:
                 pacman.transform.rotation = Quaternion.Euler(90, 0, 90);
                 pacmano.transform.rotation = Quaternion.Euler(90, 0, 90);
-                break;
-            case Direction.down:
-                pacman.transform.rotation = Quaternion.Euler(90, 90, 0);
-                pacmano.transform.rotation = Quaternion.Euler(90, 90, 0);
                 break;
             default:
                 break;
