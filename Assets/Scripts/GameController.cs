@@ -12,6 +12,13 @@ public enum Direction : int {
     left = 3
 }
 
+public enum SE
+{
+    start,
+    ghost,
+    ijike
+}
+
 public struct mapdata
 {
     public char objchar;
@@ -73,9 +80,25 @@ public class GameController : MonoBehaviour
 
     IEnumerator LetsStart()
     {
-        yield return new WaitForSeconds(4.5f); // 開始音楽が鳴りやむまで
+        float f2 = 1.6f;
+        float ma = 4.5f;
+
+        yield return new WaitForSeconds(f2); // 開始音楽が鳴りやむまで
+
+        Debug.Log(f2 + " seconds passed");
+
+        yield return new WaitForSeconds((ma - f2)); // 開始音楽が鳴りやむまで
 
         pacman.GetComponent<PlayerScript>().UnFreeze();
+
+        GameObject[] powerCookies = GameObject.FindGameObjectsWithTag("PowerCookie");
+
+        yield return new WaitForSeconds(0.45f);
+
+        foreach (GameObject powerCookie in powerCookies)
+        {
+            powerCookie.GetComponent<PowerCookieScript>().UnFreeze();
+        }
     }
 
     // Update is called once per frame
@@ -97,14 +120,21 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void EatPowerCookie()
+    public void PlaySE(SE se)
     {
-        if (aud.isPlaying)
+        if (aud.isPlaying) aud.Stop();
+
+        switch (se)
         {
-            aud.Stop();
+            case SE.ijike:
+                aud.loop = false;
+                aud.PlayOneShot(ijikeSE);
+                break;
+            default: //ghost
+                aud.loop = true;
+                aud.Play();
+                break;
         }
-        aud.volume = 0.8f;
-        aud.PlayOneShot(ijikeSE);
     }
 
     public Vector3 Coord2Xz(Vector3 coord)

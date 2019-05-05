@@ -5,10 +5,22 @@ using UnityEngine;
 public class PowerCookieScript : MonoBehaviour
 {
     GameObject controller;
+    bool freeze = true;
 
     private void Start()
     {
         controller = GameObject.Find("GameController");
+    }
+
+    public void Freeze()
+    {
+        this.freeze = true;
+        StopCoroutine(Blink());
+    }
+
+    public void UnFreeze()
+    {
+        this.freeze = false;
         StartCoroutine(Blink());
     }
 
@@ -25,8 +37,8 @@ public class PowerCookieScript : MonoBehaviour
     {
         while (true)
         {
-            Renderer renderer = GetComponent<Renderer>();
-            renderer.enabled = !renderer.enabled;
+            Renderer rend = GetComponent<Renderer>();
+            rend.enabled = !rend.enabled;
             yield return new WaitForSeconds(0.5f);
         }
     }

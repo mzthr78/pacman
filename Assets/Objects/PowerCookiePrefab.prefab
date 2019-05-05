@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 5674602892095644932}
   m_Layer: 0
   m_Name: PowerCookiePrefab
-  m_TagString: Untagged
+  m_TagString: PowerCookie
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
