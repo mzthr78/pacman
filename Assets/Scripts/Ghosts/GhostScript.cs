@@ -28,6 +28,7 @@ public class GhostScript : MonoBehaviour
         
     }
 
+    /*
     // 動作確認用
     void Updatexxx()
     {
@@ -54,6 +55,7 @@ public class GhostScript : MonoBehaviour
 
         transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal") * speed, 0, Input.GetAxisRaw("Vertical") * speed));
     }
+    */
 
     private void OnTriggerEnter(Collider other)
     {

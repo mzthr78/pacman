@@ -150,7 +150,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 742101}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -8}
+  m_LocalPosition: {x: 0, y: 0.15, z: -8}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 2007130657}
@@ -1150,7 +1150,7 @@ Transform:
   m_GameObject: {fileID: 331504671}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -13.9900055, y: -4.132187, z: 0.9930167}
-  m_LocalScale: {x: 4, y: 0.1, z: 2.5}
+  m_LocalScale: {x: 4.2, y: 0.1, z: 2.5}
   m_Children: []
   m_Father: {fileID: 754286571}
   m_RootOrder: 1
@@ -1294,7 +1294,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e89fd3448ebe45f09cbdcc2fd411266, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  monster: {fileID: 0}
+  ghost: {fileID: 0}
 --- !u!120 &378243338
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -2241,7 +2241,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 760456106}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 4.5}
+  m_LocalPosition: {x: 0, y: 0, z: 0.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 1777798961}
@@ -2259,7 +2259,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e89fd3448ebe45f09cbdcc2fd411266, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  monster: {fileID: 0}
+  ghost: {fileID: 1777798960}
 --- !u!120 &760456109
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -2490,7 +2490,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e89fd3448ebe45f09cbdcc2fd411266, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  monster: {fileID: 0}
+  ghost: {fileID: 0}
 --- !u!120 &767562451
 LineRenderer:
   m_ObjectHideFlags: 0
@@ -3358,7 +3358,7 @@ Transform:
   m_GameObject: {fileID: 1388588470}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 17.009995, y: -4.132187, z: 0.9930167}
-  m_LocalScale: {x: 4, y: 0.1, z: 2.5}
+  m_LocalScale: {x: 4.2, y: 0.1, z: 2.5}
   m_Children: []
   m_Father: {fileID: 754286571}
   m_RootOrder: 0
@@ -3755,7 +3755,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: d800e9ff355e841c693e05adc3b30aee, type: 3}
+  m_audioClip: {fileID: 8300000, guid: 1f397b4a21f2f44e9912af0ef7ae4b8e, type: 3}
   m_PlayOnAwake: 0
   m_Volume: 0.8
   m_Pitch: 1
@@ -3881,6 +3881,7 @@ MonoBehaviour:
   clyde: {fileID: 1900006325}
   sightBlinky: {fileID: 760456106}
   navRouteBlinky: {fileID: 20398737}
+  ghostSE: {fileID: 8300000, guid: 1f397b4a21f2f44e9912af0ef7ae4b8e, type: 3}
   startSE: {fileID: 8300000, guid: 07c01eca008434bdc8864941f0e8cbfa, type: 3}
   ijikeSE: {fileID: 8300000, guid: 5ca2edec4e8454853a75ca0e0f0a8e06, type: 3}
   mpostext: {fileID: 57654586}
@@ -3991,7 +3992,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e89fd3448ebe45f09cbdcc2fd411266, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  monster: {fileID: 0}
+  ghost: {fileID: 0}
 --- !u!120 &1919460177
 LineRenderer:
   m_ObjectHideFlags: 0

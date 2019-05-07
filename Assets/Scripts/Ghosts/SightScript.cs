@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SightScript : MonoBehaviour
 {
-    public GameObject monster;
+    public GameObject ghost;
 
     LineRenderer line;
     float distance = 30.0f;
@@ -19,13 +19,39 @@ public class SightScript : MonoBehaviour
     void Update()
     {
         Vector3 from = transform.position;
-        Vector3 to = from + transform.forward * distance;
+        Vector3 to = new Vector3(0, 0, 0);
+
+        float sightLen = 27.0f;
+
+        switch (ghost.GetComponent<GhostScript>().GetDirection())
+        {
+            case Direction.left:
+                to = from - transform.right * sightLen;
+                break;
+            case Direction.right:
+                to = from + transform.right * sightLen;
+                break;
+            case Direction.up:
+                to = from + transform.forward * sightLen;
+                break;
+            case Direction.down:
+                to = from - transform.forward * sightLen;
+                break;
+        }
         Vector3[] positions = new Vector3[2] { from, to };
 
-        line.startWidth = 0.1f;
-        line.endWidth = 0.1f;
+        RaycastHit hit;
+        if (Physics.Linecast(from, to, out hit))
+        {
+            Debug.Log("ghost find " + hit.transform.name);
+        }
+
+        line.startWidth = 0.2f;
+        line.endWidth = 0.2f;
 
         line.positionCount = positions.Length;
         line.SetPositions(positions);
+
+        line.material.color = Color.red;
     }
 }

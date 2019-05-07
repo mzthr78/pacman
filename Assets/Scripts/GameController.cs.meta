@@ -8,6 +8,18 @@ MonoImporter:
       type: 3}
   - cookiePrefab: {instanceID: 0}
   - powerCookiePrefab: {instanceID: 0}
+  - navMeshsurfase: {instanceID: 0}
+  - pacman: {instanceID: 0}
+  - blinky: {instanceID: 0}
+  - inky: {instanceID: 0}
+  - pinky: {instanceID: 0}
+  - clyde: {instanceID: 0}
+  - sightBlinky: {instanceID: 0}
+  - navRouteBlinky: {instanceID: 0}
+  - ghostSE: {fileID: 8300000, guid: 1f397b4a21f2f44e9912af0ef7ae4b8e, type: 3}
+  - startSE: {instanceID: 0}
+  - ijikeSE: {instanceID: 0}
+  - mpostext: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

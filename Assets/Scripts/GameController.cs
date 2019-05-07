@@ -12,7 +12,7 @@ public enum Direction : int {
     left = 3
 }
 
-public enum SE
+public enum SoundEffect
 {
     start,
     ghost,
@@ -48,6 +48,7 @@ public class GameController : MonoBehaviour
 
     AudioSource aud;
 
+    public AudioClip ghostSE;
     public AudioClip startSE;
     public AudioClip ijikeSE;
 
@@ -91,6 +92,8 @@ public class GameController : MonoBehaviour
 
         pacman.GetComponent<PlayerScript>().UnFreeze();
 
+        PlaySE(SoundEffect.ghost);
+
         GameObject[] powerCookies = GameObject.FindGameObjectsWithTag("PowerCookie");
 
         yield return new WaitForSeconds(0.45f);
@@ -120,22 +123,30 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void PlaySE(SE se)
+    public void PlaySE(SoundEffect se)
+    {
+        StartCoroutine(ControllSE(se));
+    }
+
+    IEnumerator ControllSE(SoundEffect se)
     {
         if (aud.isPlaying) aud.Stop();
 
         switch (se)
         {
-            case SE.ijike:
-                aud.loop = false;
+            case SoundEffect.ijike:
                 aud.PlayOneShot(ijikeSE);
+                yield return new WaitForSeconds(5f);
                 break;
             default: //ghost
-                aud.loop = true;
-                aud.Play();
                 break;
         }
+
+        if (aud.isPlaying) aud.Stop();
+        aud.Play();
+        yield return null;
     }
+
 
     public Vector3 Coord2Xz(Vector3 coord)
     {

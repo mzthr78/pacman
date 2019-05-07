@@ -32,9 +32,6 @@ public class BlinkyScript : MonoBehaviour
 
     float posY = 0.5f;
 
-    int[] vx = {  1,  0,  -1, 0 };
-    int[] vy = {  0,  -1, 0,  1 };
-
     MonsterStatus status;
     private Vector3[] checkPoints;
     private Vector3 checkPoint;

@@ -75,8 +75,6 @@ public class PlayerScript : MonoBehaviour
                     break;
             }
 
-            Debug.Log(pac);
-
             yield return new WaitForSeconds(0.07f);
         }
     }
@@ -91,6 +89,7 @@ public class PlayerScript : MonoBehaviour
         float rx = Mathf.Floor(transform.position.x) + 0.5f;
         float rz = Mathf.Round(transform.position.z);
 
+        // sight
         Vector3 from = transform.position;
         Vector3 to = new Vector3();
         switch (this.dir)
@@ -109,6 +108,7 @@ public class PlayerScript : MonoBehaviour
                 break;
         }
 
+        // 
         RaycastHit hit;
         if (Physics.Linecast(from, to, out hit))
         {
@@ -116,7 +116,7 @@ public class PlayerScript : MonoBehaviour
             Debug.Log(target.name);
         }
 
-
+        // Line Render
         Vector3[] positions = new Vector3[2] { from, to };
 
         line.positionCount = 2;
@@ -150,11 +150,23 @@ public class PlayerScript : MonoBehaviour
         int ix = (int)(coord.x + 13.5f);
         int iz = Mathf.Abs((int)(coord.z - 15));
 
+        if (ix < 0 || ix > 27 || iz < 0 || iz > 30)
+        {
+            Debug.Log("out of map!!!");
+        }
+
         char[] dirobj = new char[4];
 
         for (int i = 0; i < 4; i++)
         {
-            dirobj[i] = map[iz + vz[i]][ix + vx[i]].objchar;
+            if (iz + vz[i] >= 0 && iz + vz[i] <= 30 && ix + vx[i] >= 0 && ix + vx[i] <= 27)
+            {
+                dirobj[i] = map[iz + vz[i]][ix + vx[i]].objchar;
+            } else
+            {
+                // このへんにワープ処理かな？
+                dirobj[i] = '*';
+            }
         }
 
         switch (dirobj[(int)tmpdir])
@@ -196,7 +208,6 @@ public class PlayerScript : MonoBehaviour
                 case Direction.left:
                     if (Mathf.Abs(transform.position.x - rx) < 0.01f)
                     {
-                        Debug.Log("a!");
                         dir = Direction.none;
                     }
                     break;
@@ -216,10 +227,13 @@ public class PlayerScript : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
+            Debug.Log("aaaaaaaaa");
+
             RaycastHit hit2;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit2))
             {
+                Debug.Log("[" + ix + "][" + iz + "]");
             }
         }
     }

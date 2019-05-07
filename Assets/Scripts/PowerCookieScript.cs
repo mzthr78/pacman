@@ -29,7 +29,7 @@ public class PowerCookieScript : MonoBehaviour
         //Debug.Log("cookie trigger other = " + other);
         if (other.name == "Pacman")
         {
-            controller.GetComponent<GameController>().EatPowerCookie();
+            controller.GetComponent<GameController>().PlaySE(SoundEffect.ijike);
         }
     }
 
