@@ -3652,10 +3652,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d1e240f7091e546c7bda7b55c1c75a5e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  controller: {fileID: 1882250891}
+  controller: {fileID: 1882250894}
+  pacman: {fileID: 742102}
   leftright: {fileID: 250335824}
   updown: {fileID: 1653761043}
-  pacman: {fileID: 742101}
 --- !u!65 &1777798965
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -5,6 +5,7 @@ using UnityEngine;
 public class SightScript : MonoBehaviour
 {
     public GameObject ghost;
+    GhostScript ghostScript;
 
     LineRenderer line;
     float distance = 30.0f;
@@ -15,6 +16,7 @@ public class SightScript : MonoBehaviour
     void Start()
     {
         line = GetComponent<LineRenderer>();
+        ghostScript = ghost.GetComponent<GhostScript>();
     }
 
     // Update is called once per frame
@@ -25,7 +27,7 @@ public class SightScript : MonoBehaviour
 
         float sightLen = 27.0f;
 
-        switch (ghost.GetComponent<GhostScript>().GetDirection())
+        switch (ghostScript.GetDirection())
         {
             case Direction.left:
                 to = from - transform.right * sightLen;
@@ -48,10 +50,16 @@ public class SightScript : MonoBehaviour
             if (hit.transform.name == "Pacman")
             {
                 findPacman = true;
-            } else
+                ghostScript.UnFreeze();
+            }
+            else
             {
                 if (findPacman)
                 {
+                    Debug.Log("Lost sight!");
+
+                    ghostScript.ChasePacman();
+
                     findPacman = false;
                 }
             }

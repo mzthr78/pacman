@@ -13,11 +13,16 @@ enum GhostState
 
 public class GhostScript : MonoBehaviour
 {
-    public GameObject controller;
+    public GameController controller;
+
+    Transform targetObj;
+    public Transform pacman;
 
     public GameObject leftright;
     public GameObject updown;
+
     float speed = 0.3f;
+    float moveSpeed = 0.1f;
 
     bool freeze = true;
 
@@ -25,8 +30,6 @@ public class GhostScript : MonoBehaviour
 
     GhostState state = GhostState.waiting;
 
-    Transform target;
-    public GameObject pacman;
 
     NavMeshAgent agent;
     NavMeshPath path;
@@ -42,6 +45,9 @@ public class GhostScript : MonoBehaviour
 
     float moveX;
     float moveZ;
+
+    int[] vx = { 0, 1, 0, -1 };
+    int[] vz = { -1, 0, 1, 0 };
 
     public void Freeze()
     {
@@ -61,22 +67,184 @@ public class GhostScript : MonoBehaviour
 
     private void Start()
     {
+        map = controller.GetMap();
+        agent = GetComponent<NavMeshAgent>();
+
         posQue = new Queue<Vector3>();
-        map = controller.GetComponent<GameController>().GetMap();
         checkPoint = transform.position;
     }
 
     private void Update()
     {
+        float rx = Mathf.Floor(transform.position.x) + 0.5f;
+        float rz = Mathf.Round(transform.position.z);
+
+        Vector3 coord = controller.Coord2Xz(transform.position);
+        int ix = (int)(coord.x + 13.5f);
+        int iz = Mathf.Abs((int)(coord.z - 15));
+
+        char[] dirobj = new char[4];
+
+        for (int i = 0; i < 4; i++)
+        {
+            // exclusion out of range
+            if (iz + vz[i] >= 0 && iz + vz[i] <= 30 && ix + vx[i] >= 0 && ix + vx[i] <= 27)
+            {
+                dirobj[i] = map[iz + vz[i]][ix + vx[i]].objchar;
+            }
+            else
+            {
+                // add warp script around here 
+                dirobj[i] = '*';
+            }
+        }
+
+        Vector3 currentPos = new Vector3(transform.position.x, posY, transform.position.z);
+        float distance = Vector3.Distance(currentPos, checkPoint);
+        float step = Time.deltaTime * 7;
+
+        if (distance > 0.15f)
+        {
+            Debug.Log("distance = " + distance + " transform.position = " + transform.position + " checkpoint = " + checkPoint);
+            //transform.position = Vector3.MoveTowards(transform.position, checkPoint, step);
+            if (transform.position.x > checkPoint.x)
+            {
+                moveDir = Direction.right;
+            }
+            else if (transform.position.x < checkPoint.x)
+            {
+                moveDir = Direction.left;
+            }
+            else if (transform.position.z > checkPoint.z)
+            {
+                moveDir = Direction.up;
+            }
+            else if (transform.position.z < checkPoint.z)
+            {
+                moveDir = Direction.down;
+            }
+            else
+            {
+                moveDir = Direction.none;
+            }
+        }
+        else
+        {
+            if (posQue.Count > 0)
+            {
+                Vector3 prePoint = checkPoint;
+                Vector3 nxtPoint = posQue.Peek();
+
+                float diffX = nxtPoint.x - prePoint.x;
+                float diffZ = nxtPoint.z - prePoint.z;
+
+                if (Mathf.Abs(diffX) > 0 && Mathf.Abs(diffZ) > 0)
+                {
+                    switch (GetDirection())
+                    {
+                        case Direction.left:
+                        case Direction.right:
+                            checkPoint = new Vector3(nxtPoint.x, posY, prePoint.z);
+                            break;
+                        case Direction.up:
+                        case Direction.down:
+                            checkPoint = new Vector3(prePoint.x, posY, nxtPoint.z);
+                            break;
+                    }
+                    //Debug.Log(checkPoint);
+                }
+                else
+                {
+                    if (diffX > 0)
+                    {
+                        ChangeDirection(Direction.right);
+                    }
+                    else if (diffX < 0)
+                    {
+                        ChangeDirection(Direction.left);
+                    }
+                    else if (diffZ > 0)
+                    {
+                        ChangeDirection(Direction.up);
+                    }
+                    else if (diffZ < 0)
+                    {
+                        ChangeDirection(Direction.down);
+                    }
+                    else
+                    {
+
+                    }
+                    checkPoint = posQue.Dequeue();
+                    //Debug.Log(checkPoint);
+                }
+            }
+            else
+            {
+                // when posQue is empty, set next target.
+                Debug.Log("next!");
+             
+            }
+        }
+
+        // 
+        switch (moveDir)
+        {
+            case Direction.left:
+            case Direction.right:
+                if (Mathf.Abs(transform.position.x - rx) < 0.1f && dirobj[(int)moveDir] == '#')
+                {
+                    moveDir = Direction.none;
+                }
+                break;
+            case Direction.up:
+            case Direction.down:
+                if (Mathf.Abs(transform.position.z - rz) < 0.1f && dirobj[(int)moveDir] == '#')
+                {
+                    moveDir = Direction.none;
+                }
+                break;
+            default:
+                break;
+        }
+
+        Debug.Log("moveDir = " + moveDir);
+        Move(moveDir);
+    }
+
+    void tmpFunc ()
+    {
         if (posQue.Count > 0)
         {
+
+
             Vector3 currentPos = new Vector3(transform.position.x, posY, transform.position.z);
             float distance = Vector3.Distance(currentPos, checkPoint);
             float step = Time.deltaTime * 7;
 
             if (distance > 0.15f)
             {
-                transform.position = Vector3.MoveTowards(transform.position, checkPoint, step);
+                //transform.position = Vector3.MoveTowards(transform.position, checkPoint, step);
+                if (transform.position.x > checkPoint.x)
+                {
+                    moveDir = Direction.right;
+                }
+                else if (transform.position.x < checkPoint.x)
+                {
+                    moveDir = Direction.left;
+                }
+                else if (transform.position.z > checkPoint.z)
+                {
+                    moveDir = Direction.up;
+                }
+                else if (transform.position.z < checkPoint.z)
+                {
+                    moveDir = Direction.down;
+                }
+                else
+                {
+                    moveDir = Direction.none;
+                }
             }
             else
             {
@@ -136,8 +304,9 @@ public class GhostScript : MonoBehaviour
         }
         else
         {
-            Move(moveDir);
+            //Move(moveDir);
         }
+        Move(moveDir);
     }
 
     // 動作確認用
@@ -240,13 +409,16 @@ public class GhostScript : MonoBehaviour
                 moveZ = 0;
                 break;
         }
-        transform.Translate(moveX * speed, 0, moveZ * speed);
+        transform.Translate(moveX * moveSpeed, 0, moveZ * moveSpeed);
     }
 
-    void SearchTarget()
+    public void ChasePacman()
     {
-        agent = GetComponent<NavMeshAgent>();
+        SearchTarget(pacman);
+    }
 
+    void SearchTarget(Transform target)
+    {
         path = new NavMeshPath();
 
         //ここでtargetを変えるようにする
@@ -263,6 +435,6 @@ public class GhostScript : MonoBehaviour
             posQue.Enqueue(new Vector3(x, y, z));
         }
 
-        state = GhostState.chase;
+        //state = GhostState.chase;
     }
 }

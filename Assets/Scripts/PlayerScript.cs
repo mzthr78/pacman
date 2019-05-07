@@ -125,7 +125,6 @@ public class PlayerScript : MonoBehaviour
             }
         }
 
-
         Direction tmpdir = dir;
 
         if (Input.GetKey(KeyCode.UpArrow))
@@ -151,7 +150,7 @@ public class PlayerScript : MonoBehaviour
         // Debug.Log("x = " + moveX + " z = " + moveZ);
 
         Vector3 coord = controller.Coord2Xz(transform.position);
-        int ix = (int)(coord.x + 13.5f);
+        int ix = (int)(coord.x + 13.5f); 
         int iz = Mathf.Abs((int)(coord.z - 15));
 
         /*　for confirmation
@@ -165,6 +164,7 @@ public class PlayerScript : MonoBehaviour
 
         for (int i = 0; i < 4; i++)
         {
+            // exclusion out of range
             if (iz + vz[i] >= 0 && iz + vz[i] <= 30 && ix + vx[i] >= 0 && ix + vx[i] <= 27)
             {
                 dirobj[i] = map[iz + vz[i]][ix + vx[i]].objchar;
