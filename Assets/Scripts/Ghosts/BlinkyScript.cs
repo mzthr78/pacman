@@ -52,6 +52,7 @@ public class BlinkyScript : MonoBehaviour
 
         LeftRight.SetActive(true);
 
+        /*
         GameObject controller = GameObject.Find("GameController");
         List<List<mapdata>> map = controller.GetComponent<GameController>().GetMap();
 
@@ -64,6 +65,7 @@ public class BlinkyScript : MonoBehaviour
         }
         status = MonsterStatus.Idle;
         checkPoint = transform.position;
+        */
     }
 
     private void Update()
@@ -109,7 +111,8 @@ public class BlinkyScript : MonoBehaviour
                                 break;
                         }
                         //Debug.Log(checkPoint);
-                    } else
+                    }
+                    else
                     {
                         if (diffX > 0)
                         {
@@ -130,7 +133,8 @@ public class BlinkyScript : MonoBehaviour
                         checkPoint = posQue.Dequeue();
                         //Debug.Log(checkPoint);
                     }
-                } else
+                }
+                else
                 {
                     freeze = true;
                 }

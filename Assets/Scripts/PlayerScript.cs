@@ -47,7 +47,7 @@ public class PlayerScript : MonoBehaviour
     int pac = 0;
     int incdec = 1;
 
-    // パックマンがパクパクする
+    // pac-man pacpac
     IEnumerator Pacpac()
     {
         while (true)
@@ -89,38 +89,42 @@ public class PlayerScript : MonoBehaviour
         float rx = Mathf.Floor(transform.position.x) + 0.5f;
         float rz = Mathf.Round(transform.position.z);
 
-        // sight
-        Vector3 from = transform.position;
-        Vector3 to = new Vector3();
-        switch (this.dir)
+        // sight (if line renderer enabled)
+        if (line.enabled)
         {
-            case Direction.left:
-                to = from - transform.right * 3.0f;
-                break;
-            case Direction.right:
-                to = from + transform.right * 3.0f;
-                break;
-            case Direction.up:
-                to = from + transform.forward * 3.0f;
-                break;
-            case Direction.down:
-                to = from - transform.forward * 3.0f;
-                break;
+            Vector3 from = transform.position;
+            Vector3 to = new Vector3();
+            switch (this.dir)
+            {
+                case Direction.left:
+                    to = from - transform.right * 3.0f;
+                    break;
+                case Direction.right:
+                    to = from + transform.right * 3.0f;
+                    break;
+                case Direction.up:
+                    to = from + transform.forward * 3.0f;
+                    break;
+                case Direction.down:
+                    to = from - transform.forward * 3.0f;
+                    break;
+            }
+
+            // Line Render
+            Vector3[] positions = new Vector3[2] { from, to };
+
+            line.positionCount = 2;
+            line.SetPositions(positions);
+
+            //
+            RaycastHit hit;
+            if (Physics.Linecast(from, to, out hit))
+            {
+                Transform target = hit.transform;
+                Debug.Log(target.name);
+            }
         }
 
-        // 
-        RaycastHit hit;
-        if (Physics.Linecast(from, to, out hit))
-        {
-            Transform target = hit.transform;
-            Debug.Log(target.name);
-        }
-
-        // Line Render
-        Vector3[] positions = new Vector3[2] { from, to };
-
-        line.positionCount = 2;
-        line.SetPositions(positions);
 
         Direction tmpdir = dir;
 
@@ -150,10 +154,12 @@ public class PlayerScript : MonoBehaviour
         int ix = (int)(coord.x + 13.5f);
         int iz = Mathf.Abs((int)(coord.z - 15));
 
+        /*　for confirmation
         if (ix < 0 || ix > 27 || iz < 0 || iz > 30)
         {
-            Debug.Log("out of map!!!");
+            //Debug.Log("out of map!!!");
         }
+        */
 
         char[] dirobj = new char[4];
 
@@ -164,7 +170,7 @@ public class PlayerScript : MonoBehaviour
                 dirobj[i] = map[iz + vz[i]][ix + vx[i]].objchar;
             } else
             {
-                // このへんにワープ処理かな？
+                // add warp script around here 
                 dirobj[i] = '*';
             }
         }
@@ -227,8 +233,6 @@ public class PlayerScript : MonoBehaviour
 
         if (Input.GetMouseButtonDown(0))
         {
-            Debug.Log("aaaaaaaaa");
-
             RaycastHit hit2;
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out hit2))

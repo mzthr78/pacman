@@ -9,6 +9,8 @@ public class SightScript : MonoBehaviour
     LineRenderer line;
     float distance = 30.0f;
 
+    bool findPacman = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -43,7 +45,16 @@ public class SightScript : MonoBehaviour
         RaycastHit hit;
         if (Physics.Linecast(from, to, out hit))
         {
-            Debug.Log("ghost find " + hit.transform.name);
+            if (hit.transform.name == "Pacman")
+            {
+                findPacman = true;
+            } else
+            {
+                if (findPacman)
+                {
+                    findPacman = false;
+                }
+            }
         }
 
         line.startWidth = 0.2f;
