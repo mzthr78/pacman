@@ -50,6 +50,7 @@ public class BlinkyScript : MonoBehaviour
     {
         LeftRight.SetActive(true);
         ghost.GetComponent<GhostScript>().Freeze();
-    }
 
+
+    }
 }

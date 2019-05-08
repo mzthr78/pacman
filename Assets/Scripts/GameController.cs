@@ -25,6 +25,12 @@ public struct mapdata
     public Vector3 coordinate;
 }
 
+public struct xz
+{
+    public int x;
+    public int z;
+}
+
 public class GameController : MonoBehaviour
 {
     int[] vx = { 0, 1, 0, -1 };
@@ -56,8 +62,11 @@ public class GameController : MonoBehaviour
 
     private List<List<mapdata>> map;
 
+    List<xz> passable;
+
     private void Awake()
     {
+        passable = new List<xz>();
         LoadMapData();
     }
 
@@ -174,6 +183,7 @@ public class GameController : MonoBehaviour
 
         map = new List<List<mapdata>>();
 
+        // textfile -> list<list<T>>
         int RowNo = 0;
         foreach(string line in lines)
         {
@@ -194,30 +204,37 @@ public class GameController : MonoBehaviour
             RowNo++;
         }
 
-        int lineNo = 15;
-        foreach (string line in lines)
+        // List<List<T>> -> object(obstruct, cookie, etc...)
+        for (int i = 0; i < lines.Length; i++)
         {
-            for (int j = 0; j < line.Length; j++)
+            for (int j = 0; j < lines[i].Length; j++)
             {
-                switch (line[j])
+                switch (lines[i][j])
                 {
                     case '#':
                         GameObject obstruct = Instantiate(obstructPrefab);
-                        obstruct.transform.position = new Vector3(-13.5f + j, 0.1f, lineNo);
+                        obstruct.transform.position = new Vector3(-13.5f + j, 0.1f, 15 - i);
                         break;
                     case '.':
                         GameObject cookie = Instantiate(cookiePrefab);
-                        cookie.transform.position = new Vector3(-13.5f + j, 0.1f, lineNo);
+                        cookie.transform.position = new Vector3(-13.5f + j, 0.1f, 15 - i);
                         break;
                     case '@':
                         GameObject powerCookie = Instantiate(powerCookiePrefab);
-                        powerCookie.transform.position = new Vector3(-13.5f + j, 0.1f, lineNo);
+                        powerCookie.transform.position = new Vector3(-13.5f + j, 0.1f, 15 - i);
                         break;
                     default:
                         break;
                 }
+
+                if (lines[i][j] == '.' || lines[i][j] == '@' || lines[i][j] == ' ')
+                {
+                    xz tmp = new xz();
+                    tmp.x = j;
+                    tmp.z = i;
+                    passable.Add(tmp);
+                }
             }
-            lineNo--;
         }
     }
 }
