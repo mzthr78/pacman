@@ -3774,7 +3774,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 1f397b4a21f2f44e9912af0ef7ae4b8e, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.8
+  m_Volume: 0.7
   m_Pitch: 1
   Loop: 1
   Mute: 0
@@ -3914,6 +3914,7 @@ GameObject:
   - component: {fileID: 1900006327}
   - component: {fileID: 1900006328}
   - component: {fileID: 1900006329}
+  - component: {fileID: 1900006330}
   m_Layer: 9
   m_Name: Clyde
   m_TagString: Untagged
@@ -3985,6 +3986,28 @@ MonoBehaviour:
   updown: {fileID: 924246649}
   pointPrefab: {fileID: 0}
   point2Prefab: {fileID: 0}
+--- !u!195 &1900006330
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1900006325}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4
 --- !u!1 &1919460174
 GameObject:
   m_ObjectHideFlags: 0
@@ -4475,6 +4498,7 @@ GameObject:
   - component: {fileID: 2126347274}
   - component: {fileID: 2126347275}
   - component: {fileID: 2126347276}
+  - component: {fileID: 2126347277}
   m_Layer: 9
   m_Name: Pinky
   m_TagString: Untagged
@@ -4546,3 +4570,25 @@ MonoBehaviour:
   updown: {fileID: 621355994}
   pointPrefab: {fileID: 0}
   point2Prefab: {fileID: 0}
+--- !u!195 &2126347277
+NavMeshAgent:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2126347272}
+  m_Enabled: 1
+  m_AgentTypeID: 0
+  m_Radius: 0.5
+  m_Speed: 3.5
+  m_Acceleration: 8
+  avoidancePriority: 50
+  m_AngularSpeed: 120
+  m_StoppingDistance: 0
+  m_AutoTraverseOffMeshLink: 1
+  m_AutoBraking: 1
+  m_AutoRepath: 1
+  m_Height: 2
+  m_BaseOffset: 0
+  m_WalkableMask: 4294967295
+  m_ObstacleAvoidanceType: 4

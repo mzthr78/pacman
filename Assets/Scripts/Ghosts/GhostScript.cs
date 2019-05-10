@@ -116,13 +116,9 @@ public class GhostScript : MonoBehaviour
             }
             else
             {
-                // add warp script around here 
                 dirobj[i] = '*';
             }
         }
-
-        //Debug.Log(moveDir + " pos=" + transform.position + " cp=" + checkPoint + " (rx, rz) = (" + rx + ", " + rz + ")");
-        //Debug.Log("↑" + dirobj[(int)Direction.up] + "↓" + dirobj[(int)Direction.down] + "←" + dirobj[(int)Direction.left] + "→" + dirobj[(int)Direction.right]);
 
         // direction change judgement
         switch (moveDir)
@@ -130,29 +126,24 @@ public class GhostScript : MonoBehaviour
             case Direction.left:
                 if (transform.position.x < checkPoint.x && Mathf.Abs(transform.position.x - rx) < 0.1f)
                 {
-                    //moveDir = Direction.none;
                     next = true;
                 }
                 break;
             case Direction.right:
                 if (transform.position.x > checkPoint.x && Mathf.Abs(transform.position.x - rx) < 0.1f)
                 {
-                    //moveDir = Direction.none;
                     next = true;
                 }
                 break;
             case Direction.up:
                 if (transform.position.z > checkPoint.z && Mathf.Abs(transform.position.z - rz) < 0.1f)
                 {
-                    //moveDir = Direction.none;
                     next = true;
                 }
                 break;
             case Direction.down:
-                //Debug.Log("[" + name + "](judge) p=" + transform.position + " s=" + checkPoint + " r=" + rz);
                 if (transform.position.z < checkPoint.z && Mathf.Abs(transform.position.z - rz) < 0.1f)
                 {
-                    //moveDir = Direction.none;
                     next = true;
                 }
                 break;
@@ -170,12 +161,7 @@ public class GhostScript : MonoBehaviour
             {
                 queSeq++;
 
-                //Debug.Log("[" + name + "] Que -> " + posQue.Peek() + " direction = " + moveDir);
-                //Debug.Log("[" + name + "] position = " + transform.position);
-
                 checkPoint = posQue.Dequeue();
-
-                //Debug.Log("[" + name + "](" + queSeq + ") p=" + transform.position + " c=" + checkPoint);
 
                 switch (moveDir)
                 {
@@ -193,11 +179,7 @@ public class GhostScript : MonoBehaviour
                         break;
                 }
 
-                //Debug.Log("(rx, rz)=(" + rx + "," + rz + ")" + ", (ix, iz)=(" + ix + "," + iz + ") " + "↑" + dirobj[(int)Direction.up] + "↓" + dirobj[(int)Direction.down] + "←" + dirobj[(int)Direction.left] + "→" + dirobj[(int)Direction.right]);
-
                 NextDir(dirobj);
-
-                //Debug.Log("[" + name + "]" + "moveDir -> " + moveDir);
             }
             else
             {
@@ -227,7 +209,6 @@ public class GhostScript : MonoBehaviour
             default:
                 break;
         }
-        //Debug.Log("[" + name + "]" + " moveDir = " + moveDir);
         Move(moveDir);
     }
 
@@ -263,8 +244,6 @@ public class GhostScript : MonoBehaviour
 
         if (distance > 0.15f)
         {
-            //Debug.Log("distance = " + distance + " transform.position = " + transform.position + " checkpoint = " + checkPoint);
-            //transform.position = Vector3.MoveTowards(transform.position, checkPoint, step);
             if (transform.position.x > checkPoint.x)
             {
                 moveDir = Direction.right;
@@ -284,6 +263,7 @@ public class GhostScript : MonoBehaviour
             else
             {
                 moveDir = Direction.none;
+                Debug.Log("none!");
             }
         }
         else
@@ -341,8 +321,6 @@ public class GhostScript : MonoBehaviour
             {
                 // when posQue is empty, set next target.
                 Debug.Log("next!");
-
-
             }
         }
 

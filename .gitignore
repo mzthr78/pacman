@@ -41,9 +41,13 @@ sysinfo.txt
 *.apk
 *.unitypackage
 
+# My Settings
 *.app/
 
 .DS_Store
 
 *.mp3*
 *.wav*
+
+Fonts/
+

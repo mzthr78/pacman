@@ -175,13 +175,16 @@ public class PlayerScript : MonoBehaviour
             }
         }
 
-        switch (dirobj[(int)tmpdir])
+        if ((int)tmpdir >= 0 && (int)tmpdir < 4)
         {
-            case '#':
-                break;
-            default:
-                reservedir = tmpdir;
-                break;
+            switch (dirobj[(int)tmpdir])
+            {
+                case '#':
+                    break;
+                default:
+                    reservedir = tmpdir;
+                    break;
+            }
         }
 
         if (reservedir != Direction.none)
@@ -206,40 +209,31 @@ public class PlayerScript : MonoBehaviour
             reservedir = Direction.none;
         }
 
-        if (dirobj[(int)dir] == '#')
+        if ((int)dir >= 0 && (int)dir < 4)
         {
-            switch (dir)
+            if (dirobj[(int)dir] == '#')
             {
-                case Direction.right:
-                case Direction.left:
-                    if (Mathf.Abs(transform.position.x - rx) < 0.01f)
-                    {
-                        dir = Direction.none;
-                    }
-                    break;
-                case Direction.up:
-                case Direction.down:
-                    if (Mathf.Abs(transform.position.z - rz) < 0.01f)
-                    {
-                        dir = Direction.none;
-                    }
-                    break;
+                switch (dir)
+                {
+                    case Direction.right:
+                    case Direction.left:
+                        if (Mathf.Abs(transform.position.x - rx) < 0.01f)
+                        {
+                            dir = Direction.none;
+                        }
+                        break;
+                    case Direction.up:
+                    case Direction.down:
+                        if (Mathf.Abs(transform.position.z - rz) < 0.01f)
+                        {
+                            dir = Direction.none;
+                        }
+                        break;
+                }
             }
         }
 
         Move(dir);
-
-        //transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal") * speed, 0, Input.GetAxisRaw("Vertical") * speed));
-
-        if (Input.GetMouseButtonDown(0))
-        {
-            RaycastHit hit2;
-            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out hit2))
-            {
-                Debug.Log("[" + ix + "][" + iz + "]");
-            }
-        }
     }
 
     public void Move(Direction d)
