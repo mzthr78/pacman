@@ -121,7 +121,7 @@ public class PlayerScript : MonoBehaviour
             if (Physics.Linecast(from, to, out hit))
             {
                 Transform target = hit.transform;
-                Debug.Log(target.name);
+                //Debug.Log(target.name);
             }
         }
 
@@ -242,7 +242,7 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    void Move(Direction d)
+    public void Move(Direction d)
     {
         ChangeDirection(d);
 

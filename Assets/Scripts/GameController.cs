@@ -83,7 +83,7 @@ public class GameController : MonoBehaviour
         clyde.SetActive(true);
 
         sightBlinky.SetActive(true);
-        navRouteBlinky.SetActive(false);
+        navRouteBlinky.SetActive(true);
 
         StartCoroutine(LetsStart());
     }
@@ -99,18 +99,32 @@ public class GameController : MonoBehaviour
 
         yield return new WaitForSeconds((ma - f2)); // 開始音楽が鳴りやむまで
 
-        pacman.GetComponent<PlayerScript>().UnFreeze();
+        UnFreeze();
 
         PlaySE(SoundEffect.ghost);
 
-        GameObject[] powerCookies = GameObject.FindGameObjectsWithTag("PowerCookie");
-
         yield return new WaitForSeconds(0.45f);
+
+    }
+
+    void UnFreeze()
+    {
+        GameObject[] powerCookies = GameObject.FindGameObjectsWithTag("PowerCookie");
 
         foreach (GameObject powerCookie in powerCookies)
         {
             powerCookie.GetComponent<PowerCookieScript>().UnFreeze();
         }
+
+        blinky.GetComponent<GhostScript>().UnFreeze();
+        //inky.GetComponent<GhostScript>().UnFreeze();
+        //pinky.GetComponent<GhostScript>().UnFreeze();
+        //clyde.GetComponent<GhostScript>().UnFreeze();
+
+        blinky.GetComponent<GhostScript>().ChaseTarget();
+
+        PlayerScript player = pacman.GetComponent<PlayerScript>();
+        player.UnFreeze();
     }
 
     // Update is called once per frame
@@ -204,16 +218,45 @@ public class GameController : MonoBehaviour
             RowNo++;
         }
 
+        int[] vx = { 0, 1, 0, -1 };
+        int[] vz = { -1, 0, 1, 0 };
+
         // List<List<T>> -> object(obstruct, cookie, etc...)
         for (int i = 0; i < lines.Length; i++)
         {
             for (int j = 0; j < lines[i].Length; j++)
             {
+                char[] dirobj = new char[4];
+                for (int k = 0; k < 4; k++)
+                {
+                    int x = j + vx[k];
+                    int z = i + vz[k];
+
+                    // Debug.Log("[" + i + "][" + j + "][" + x + "][" + z + "]");
+                    if (x >= 0 && x < 28 && z >= 0 && z < 31)
+                    {
+                        dirobj[k] = lines[z][x];
+                    } else
+                    {
+                        dirobj[k] = '*';
+                    }
+                }
+
                 switch (lines[i][j])
                 {
                     case '#':
                         GameObject obstruct = Instantiate(obstructPrefab);
                         obstruct.transform.position = new Vector3(-13.5f + j, 0.1f, 15 - i);
+
+                        for (int k = 0; k < 4; k++)
+                        {
+                            if (dirobj[k] == '#')
+                            {
+                                GameObject obstruct2 = Instantiate(obstructPrefab);
+                                obstruct2.transform.position = new Vector3(-13.5f + j + 0.5f * vx[k], 0.1f, 15 - i - 0.5f * vz[k]);
+                            }
+                        }
+
                         break;
                     case '.':
                         GameObject cookie = Instantiate(cookiePrefab);
