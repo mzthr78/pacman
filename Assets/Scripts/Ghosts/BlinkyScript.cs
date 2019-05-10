@@ -28,7 +28,8 @@ public class BlinkyScript : MonoBehaviour
         ghost.SetDirection(Direction.none);
 
         target.position = controller.Xz2Coord(9, 5);
-        target.position = controller.Xz2Coord(6, 12);
+        //target.position = controller.Xz2Coord(6, 12);
+        target.position = controller.Xz2Coord(0, 4);
     }
 
     void Start()
@@ -41,10 +42,18 @@ public class BlinkyScript : MonoBehaviour
         ghost.ChaseTarget();
     }
 
-    IEnumerator FirstTarget()
+    private void Update()
     {
-        target.position = controller.Xz2Coord(13, 5);
-        ghost.SearchTarget(target);
-        yield return new WaitForSeconds(0.5f);
+        if (Input.GetMouseButton(0))
+        {
+            RaycastHit hit;
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out hit))
+            {
+                float rx = Mathf.Floor(hit.point.x) + 0.5f;
+                float rz = Mathf.Round(hit.point.z);
+                target.position = new Vector3(rx, target.position.y, rz);
+                ghost.SearchTarget(target);
+            }         }
     }
 }

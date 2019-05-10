@@ -22,7 +22,7 @@ public class GhostScript : MonoBehaviour
     public GameObject updown;
 
     float speed = 0.1f;
-    float moveSpeed = 0.06f;
+    float moveSpeed = 0.1f;
 
     bool freeze = true;
 
@@ -87,6 +87,10 @@ public class GhostScript : MonoBehaviour
         next = true;
     }
 
+    float adjustX = 0;
+    float adjustUP = 0;
+    float adjustDown = 0;
+
     private void Update()
     {
         //Debug.Log(tag + " freeze? " + this.freeze);
@@ -117,8 +121,8 @@ public class GhostScript : MonoBehaviour
             }
         }
 
-        Debug.Log(moveDir + " pos=" + transform.position + " cp=" + checkPoint + " (rx, rz) = (" + rx + ", " + rz + ")");
-        Debug.Log("↑" + dirobj[(int)Direction.up] + "↓" + dirobj[(int)Direction.down] + "←" + dirobj[(int)Direction.left] + "→" + dirobj[(int)Direction.right]);
+        //Debug.Log(moveDir + " pos=" + transform.position + " cp=" + checkPoint + " (rx, rz) = (" + rx + ", " + rz + ")");
+        //Debug.Log("↑" + dirobj[(int)Direction.up] + "↓" + dirobj[(int)Direction.down] + "←" + dirobj[(int)Direction.left] + "→" + dirobj[(int)Direction.right]);
 
         // direction change judgement
         switch (moveDir)
@@ -145,7 +149,7 @@ public class GhostScript : MonoBehaviour
                 }
                 break;
             case Direction.down:
-                Debug.Log("[" + name + "](judge) p=" + transform.position + " s=" + checkPoint + " r=" + rz);
+                //Debug.Log("[" + name + "](judge) p=" + transform.position + " s=" + checkPoint + " r=" + rz);
                 if (transform.position.z < checkPoint.z && Mathf.Abs(transform.position.z - rz) < 0.1f)
                 {
                     //moveDir = Direction.none;
@@ -153,6 +157,10 @@ public class GhostScript : MonoBehaviour
                 }
                 break;
             default:
+                if (posQue != null && posQue.Count > 0)
+                {
+                    next = true;
+                }
                 break;
         }
 
@@ -167,11 +175,7 @@ public class GhostScript : MonoBehaviour
 
                 checkPoint = posQue.Dequeue();
 
-                Debug.Log("[" + name + "](" + queSeq + ") p=" + transform.position + " c=" + checkPoint);
-
-                float adjustX = 0;
-                float adjustUP = 0;
-                float adjustDown = 0;
+                //Debug.Log("[" + name + "](" + queSeq + ") p=" + transform.position + " c=" + checkPoint);
 
                 switch (moveDir)
                 {
@@ -189,31 +193,17 @@ public class GhostScript : MonoBehaviour
                         break;
                 }
 
-                Debug.Log("(rx, rz)=(" + rx + "," + rz + ")" + ", (ix, iz)=(" + ix + "," + iz + ") " + "↑" + dirobj[(int)Direction.up] + "↓" + dirobj[(int)Direction.down] + "←" + dirobj[(int)Direction.left] + "→" + dirobj[(int)Direction.right]);
+                //Debug.Log("(rx, rz)=(" + rx + "," + rz + ")" + ", (ix, iz)=(" + ix + "," + iz + ") " + "↑" + dirobj[(int)Direction.up] + "↓" + dirobj[(int)Direction.down] + "←" + dirobj[(int)Direction.left] + "→" + dirobj[(int)Direction.right]);
 
-                if (checkPoint.x > (transform.position.x + adjustX) && dirobj[(int)Direction.right] != '#')
-                {
-                    moveDir = Direction.right;
-                }
-                else if (checkPoint.x < (transform.position.x - adjustX) && dirobj[(int)Direction.left] != '#')
-                {
-                    moveDir = Direction.left;
-                }
-                else if (checkPoint.z > (transform.position.z + adjustUP) && dirobj[(int)Direction.up] != '#')
-                {
-                    moveDir = Direction.up;
-                }
-                else if (checkPoint.z < (transform.position.z - adjustDown) && dirobj[(int)Direction.down] != '#')
-                {
-                    moveDir = Direction.down;
-                }
-                else
-                {
-                    moveDir = Direction.none;
-                }
+                NextDir(dirobj);
 
                 //Debug.Log("[" + name + "]" + "moveDir -> " + moveDir);
             }
+            else
+            {
+                moveDir = Direction.none;
+            }
+
             next = false;
         }
 
@@ -241,7 +231,31 @@ public class GhostScript : MonoBehaviour
         Move(moveDir);
     }
 
-    void tmpFunc()
+    void NextDir(char[] dirobj)
+    {
+        if (checkPoint.x > (transform.position.x + adjustX) && dirobj[(int)Direction.right] != '#')
+        {
+            moveDir = Direction.right;
+        }
+        else if (checkPoint.x < (transform.position.x - adjustX) && dirobj[(int)Direction.left] != '#')
+        {
+            moveDir = Direction.left;
+        }
+        else if (checkPoint.z > (transform.position.z + adjustUP) && dirobj[(int)Direction.up] != '#')
+        {
+            moveDir = Direction.up;
+        }
+        else if (checkPoint.z < (transform.position.z - adjustDown) && dirobj[(int)Direction.down] != '#')
+        {
+            moveDir = Direction.down;
+        }
+        else
+        {
+            moveDir = Direction.none;
+        }
+    }
+
+    void tmpFunc() // reject
     {
         Vector3 currentPos = new Vector3(transform.position.x, 0, transform.position.z);
         float distance = Vector3.Distance(currentPos, checkPoint);
@@ -455,7 +469,7 @@ public class GhostScript : MonoBehaviour
             posQue.Clear();
         }
 
-        Debug.Log("[" + name + "](SearchTarget)target.name = " + target.name);
+        //Debug.Log("[" + name + "](SearchTarget)target.name = " + target.name);
 
         path = new NavMeshPath();
 
@@ -475,14 +489,17 @@ public class GhostScript : MonoBehaviour
 
         checkPoints = path.corners;
 
+        GameObject[] points = GameObject.FindGameObjectsWithTag("Point");
+        foreach (GameObject point in points)
+        {
+            Destroy(point);
+        }
+
         // line render
         for (int i = 1; i < path.corners.Length; i++)
         {
             GameObject point = Instantiate(pointPrefab);
             point.transform.position = path.corners[i];
-
-            GameObject point2 = Instantiate(point2Prefab);
-            point2.transform.position = controller.Coord2Xz(path.corners[i]);
         }
 
         //state = GhostState.chase;
