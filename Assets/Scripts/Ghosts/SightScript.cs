@@ -56,7 +56,7 @@ public class SightScript : MonoBehaviour
             {
                 if (findPacman)
                 {
-                    Debug.Log("Lost sight!");
+                    //Debug.Log("Lost sight!");
 
                     ghostScript.ChasePacman();
 

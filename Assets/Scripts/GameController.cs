@@ -73,7 +73,7 @@ public class GameController : MonoBehaviour
     void Start()
     {
         this.aud = GetComponent<AudioSource>();
-        this.aud.PlayOneShot(startSE);
+        //this.aud.PlayOneShot(startSE);
 
         navMeshsurfase.BuildNavMesh();
 
@@ -91,7 +91,11 @@ public class GameController : MonoBehaviour
     IEnumerator LetsStart()
     {
         float f2 = 1.6f;
-        float ma = 4.5f;
+        float ma = 4.7f;
+
+        yield return new WaitForSeconds(0.2f);
+
+        aud.PlayOneShot(startSE);
 
         yield return new WaitForSeconds(f2); // 開始音楽が鳴りやむまで
 

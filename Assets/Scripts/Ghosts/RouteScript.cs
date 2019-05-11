@@ -35,6 +35,12 @@ public class RouteScript : MonoBehaviour
 
         line.material.color = color;
 
+        GameObject[] points = GameObject.FindGameObjectsWithTag("Point");
+        foreach (GameObject point in points)
+        {
+            Destroy(point);
+        }
+
         for (int i = 0; i < corners.Length; i++)
         {
             GameObject point = Instantiate(pointPrefab);
