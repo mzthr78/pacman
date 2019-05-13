@@ -31,6 +31,13 @@ public struct xz
     public int z;
 }
 
+enum state
+{
+    wait,
+    rand,
+    discovery,
+}
+
 public class GameController : MonoBehaviour
 {
     int[] vx = { 0, 1, 0, -1 };
@@ -283,5 +290,10 @@ public class GameController : MonoBehaviour
                 }
             }
         }
+    }
+
+    public List<xz> GetPassable()
+    {
+        return this.passable;
     }
 }

@@ -44,6 +44,7 @@ public class GhostScript : MonoBehaviour
     Queue<Vector3> posQue;
 
     List<List<mapdata>> map;
+    List<xz> passable;
 
     float moveX;
     float moveZ;
@@ -78,6 +79,8 @@ public class GhostScript : MonoBehaviour
     private void Start()
     {
         map = controller.GetMap();
+        passable = controller.GetPassable();
+
         agent = GetComponent<NavMeshAgent>();
 
         Debug.Log("[" + name + "](Start()) agent = " + agent);
@@ -207,9 +210,18 @@ public class GhostScript : MonoBehaviour
                 }
                 break;
             default:
+                Debug.Log("none");
+                NextTarget();
                 break;
         }
         Move(moveDir);
+    }
+
+    void NextTarget()
+    {
+        xz xz = passable[Random.Range(0, passable.Count)];
+        targetObj.transform.position = controller.Xz2Coord(xz.x, xz.z);
+        ChaseTarget();
     }
 
     void NextDir(char[] dirobj)

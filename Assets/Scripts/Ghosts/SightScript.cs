@@ -50,16 +50,13 @@ public class SightScript : MonoBehaviour
             if (hit.transform.name == "Pacman")
             {
                 findPacman = true;
-                ghostScript.UnFreeze();
+                Debug.Log("discovery pacman");
             }
             else
             {
                 if (findPacman)
                 {
                     //Debug.Log("Lost sight!");
-
-                    ghostScript.ChasePacman();
-
                     findPacman = false;
                 }
             }
