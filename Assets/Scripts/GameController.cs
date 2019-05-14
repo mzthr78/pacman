@@ -16,7 +16,8 @@ public enum SoundEffect
 {
     start,
     ghost,
-    ijike
+    ijike,
+    none
 }
 
 public struct mapdata
@@ -51,15 +52,29 @@ public class GameController : MonoBehaviour
 
     public GameObject pacman;
 
+    PlayerScript pacmanScript;
+
     public GameObject blinky;
     public GameObject inky;
     public GameObject pinky;
     public GameObject clyde;
 
+    bool freeze = false;
+    bool pause = false;
+
+    GhostScript blinkyScript;
+    GhostScript inkyScript;
+    GhostScript pinkyScript;
+    GhostScript clydeScript;
+
     public GameObject sightBlinky;
     public GameObject navRouteBlinky;
 
+    public Text infoText;
+
     AudioSource aud;
+
+    SoundEffect currentSE;
 
     public AudioClip ghostSE;
     public AudioClip startSE;
@@ -75,6 +90,15 @@ public class GameController : MonoBehaviour
     {
         passable = new List<xz>();
         LoadMapData();
+
+        pacman.SetActive(false);
+
+        blinky.SetActive(false);
+        inky.SetActive(false);
+        pinky.SetActive(false);
+        clyde.SetActive(false);
+
+        HideInfoText();
     }
 
     void Start()
@@ -84,10 +108,17 @@ public class GameController : MonoBehaviour
 
         navMeshsurfase.BuildNavMesh();
 
-        blinky.SetActive(true);
-        inky.SetActive(true);
-        pinky.SetActive(true);
-        clyde.SetActive(true);
+        pacmanScript = pacman.GetComponent<PlayerScript>();
+
+        blinkyScript = blinky.GetComponent<GhostScript>();
+        inkyScript = inky.GetComponent<GhostScript>();
+        pinkyScript = pinky.GetComponent<GhostScript>();
+        clydeScript = clyde.GetComponent<GhostScript>();
+
+        blinkyScript.SetState(GhostState.chase);
+        inkyScript.SetState(GhostState.waiting);
+        pinkyScript.SetState(GhostState.waiting);
+        clydeScript.SetState(GhostState.waiting);
 
         sightBlinky.SetActive(true);
         navRouteBlinky.SetActive(true);
@@ -97,7 +128,8 @@ public class GameController : MonoBehaviour
 
     IEnumerator LetsStart()
     {
-        float f2 = 1.6f;
+        float f2 = 1.2f;
+        float f3 = 1.4f;
         float ma = 4.7f;
 
         yield return new WaitForSeconds(0.2f);
@@ -106,16 +138,52 @@ public class GameController : MonoBehaviour
 
         yield return new WaitForSeconds(f2); // 開始音楽が鳴りやむまで
 
-        Debug.Log(f2 + " seconds passed");
+        //Debug.Log(f2 + " seconds passed");
 
-        yield return new WaitForSeconds((ma - f2)); // 開始音楽が鳴りやむまで
+        blinky.SetActive(true);
+        inky.SetActive(true);
+        pinky.SetActive(true);
+        clyde.SetActive(true);
+        pacman.SetActive(true);
+
+        pinkyScript.ChangeDirection(Direction.down);
+
+        yield return new WaitForSeconds(f3); // 
+
+        ShowInfoText("READY!");
+
+        yield return new WaitForSeconds((ma - f2 - f3)); // 開始音楽が鳴りやむまで
+
+        HideInfoText();
 
         UnFreeze();
+        pacmanScript.LetsStart();
 
         PlaySE(SoundEffect.ghost);
 
         yield return new WaitForSeconds(0.45f);
 
+    }
+
+    void Freeze()
+    {
+        aud.enabled = false;
+
+        GameObject[] powerCookies = GameObject.FindGameObjectsWithTag("PowerCookie");
+
+        foreach (GameObject powerCookie in powerCookies)
+        {
+            powerCookie.GetComponent<PowerCookieScript>().Freeze();
+        }
+
+        blinkyScript.Freeze();
+        inkyScript.Freeze();
+        pinkyScript.Freeze();
+        clydeScript.Freeze();
+
+        pacmanScript.Freeze();
+
+        this.freeze = true;
     }
 
     void UnFreeze()
@@ -127,15 +195,18 @@ public class GameController : MonoBehaviour
             powerCookie.GetComponent<PowerCookieScript>().UnFreeze();
         }
 
-        blinky.GetComponent<GhostScript>().UnFreeze();
-        //inky.GetComponent<GhostScript>().UnFreeze();
-        //pinky.GetComponent<GhostScript>().UnFreeze();
-        //clyde.GetComponent<GhostScript>().UnFreeze();
+        blinkyScript.UnFreeze();
+        inkyScript.UnFreeze();
+        pinkyScript.UnFreeze();
+        clydeScript.UnFreeze();
 
-        blinky.GetComponent<GhostScript>().ChaseTarget();
+        //blinkyScript.ChaseTarget();
 
-        PlayerScript player = pacman.GetComponent<PlayerScript>();
-        player.UnFreeze();
+        pacmanScript.UnFreeze();
+
+        PlaySE(currentSE);
+
+        this.freeze = false;
     }
 
     // Update is called once per frame
@@ -149,12 +220,39 @@ public class GameController : MonoBehaviour
         }
         */
 
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (pause)
+            {
+                HideInfoText();
+                UnFreeze();
+                pause = false;
+            }
+            else
+            {
+                ShowInfoText("PAUSE");
+                Freeze();
+                pause = true;
+            }
+        }
+
         RaycastHit hit;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out hit))
         {
             mpostext.text = "(" + hit.point.x + ", " + hit.point.z + ")";
         }
+    }
+
+    void HideInfoText()
+    {
+        infoText.enabled = false;
+    }
+
+    void ShowInfoText(string message)
+    {
+        infoText.text = message;
+        infoText.enabled = true;
     }
 
     public void PlaySE(SoundEffect se)
@@ -164,7 +262,11 @@ public class GameController : MonoBehaviour
 
     IEnumerator ControllSE(SoundEffect se)
     {
+        aud.enabled = true;
+
         if (aud.isPlaying) aud.Stop();
+
+        this.currentSE = se;
 
         switch (se)
         {
@@ -173,11 +275,13 @@ public class GameController : MonoBehaviour
                 yield return new WaitForSeconds(5f);
                 break;
             default: //ghost
+                this.currentSE = SoundEffect.ghost;
                 break;
         }
 
         if (aud.isPlaying) aud.Stop();
         aud.Play();
+        currentSE = SoundEffect.ghost;
         yield return null;
     }
 
@@ -228,9 +332,6 @@ public class GameController : MonoBehaviour
             map.Add(row);
             RowNo++;
         }
-
-        int[] vx = { 0, 1, 0, -1 };
-        int[] vz = { -1, 0, 1, 0 };
 
         // List<List<T>> -> object(obstruct, cookie, etc...)
         for (int i = 0; i < lines.Length; i++)

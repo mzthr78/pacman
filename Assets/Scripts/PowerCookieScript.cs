@@ -15,7 +15,6 @@ public class PowerCookieScript : MonoBehaviour
     public void Freeze()
     {
         this.freeze = true;
-        StopCoroutine(Blink());
     }
 
     public void UnFreeze()
@@ -35,7 +34,7 @@ public class PowerCookieScript : MonoBehaviour
 
     IEnumerator Blink()
     {
-        while (true)
+        while (!this.freeze)
         {
             Renderer rend = GetComponent<Renderer>();
             rend.enabled = !rend.enabled;

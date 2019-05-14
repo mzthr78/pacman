@@ -28,11 +28,18 @@ public class PlayerScript : MonoBehaviour
 
     LineRenderer line;
 
+    public void Freeze()
+    {
+        this.freeze = true;
+        StopCoroutine(Pacpac());
+    }
+
     public void UnFreeze()
     {
-        dir = Direction.left;
-        StartCoroutine(Pacpac());
+        //dir = Direction.left;
+        //StartCoroutine(Pacpac());
         this.freeze = false;
+        StartCoroutine(Pacpac());
     }
 
     private void Start()
@@ -44,28 +51,35 @@ public class PlayerScript : MonoBehaviour
         map = controller.GetMap();
     }
 
+    public void LetsStart()
+    {
+        this.dir = Direction.left;
+        this.freeze = false;
+        StartCoroutine(Pacpac());
+    }
+
     int pac = 0;
     int incdec = 1;
 
     // pac-man pacpac
     IEnumerator Pacpac()
     {
-        while (true)
+        while (!this.freeze)
         {
             pac += incdec;
 
             switch (pac)
             {
                 case 0:
-                    pacmanc.SetActive(true);
                     pacman.SetActive(false);
                     pacmano.SetActive(false);
+                    pacmanc.SetActive(true);
                     incdec = 1;
                     break;
                 case 1:
                     pacmanc.SetActive(false);
-                    pacman.SetActive(true);
                     pacmano.SetActive(false);
+                    pacman.SetActive(true);
                     break;
                 case 2:
                     pacmanc.SetActive(false);
@@ -302,7 +316,7 @@ public class PlayerScript : MonoBehaviour
                 GetComponent<AudioSource>().PlayOneShot(cookieSE);
                 break;
             default:
-                Debug.Log("trigger collider name = " + other.name + " tag = " + other.tag);
+                //Debug.Log("trigger collider name = " + other.name + " tag = " + other.tag);
                 break;
         }
 

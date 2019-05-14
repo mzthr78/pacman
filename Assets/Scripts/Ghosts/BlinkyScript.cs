@@ -16,8 +16,6 @@ public class BlinkyScript : MonoBehaviour
 {
     public GameController controller;
 
-    public Transform target;
-
     public GameObject myRoute;
 
     GhostScript ghost;
@@ -27,9 +25,9 @@ public class BlinkyScript : MonoBehaviour
         ghost = GetComponent<GhostScript>();
         ghost.SetDirection(Direction.none);
 
-        target.position = controller.Xz2Coord(9, 5);
+        //target.position = controller.Xz2Coord(9, 5);
         //target.position = controller.Xz2Coord(6, 12);
-        target.position = controller.Xz2Coord(0, 4);
+        //target.position = controller.Xz2Coord(0, 4);
     }
 
     void Start()
@@ -44,6 +42,7 @@ public class BlinkyScript : MonoBehaviour
 
     private void Update()
     {
+        /*
         if (Input.GetMouseButton(0))
         {
             RaycastHit hit;
@@ -54,6 +53,8 @@ public class BlinkyScript : MonoBehaviour
                 float rz = Mathf.Round(hit.point.z);
                 target.position = new Vector3(rx, target.position.y, rz);
                 ghost.SearchTarget(target);
-            }         }
+            }
+        }
+        */
     }
 }

@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 
-enum GhostState
+public enum GhostState
 {
     idle,
     waiting,
+    ready,
     search,
     chase,
 }
@@ -27,7 +28,6 @@ public class GhostScript : MonoBehaviour
     bool freeze = true;
 
     public GameObject pointPrefab;
-    public GameObject point2Prefab;
 
     private Direction moveDir;
 
@@ -65,6 +65,11 @@ public class GhostScript : MonoBehaviour
         this.freeze = false;
     }
 
+    public bool IsFreeze()
+    {
+        return this.freeze;
+    }
+
     public Queue<Vector3> GetPosQue()
     {
         return this.posQue;
@@ -83,11 +88,24 @@ public class GhostScript : MonoBehaviour
 
         agent = GetComponent<NavMeshAgent>();
 
-        Debug.Log("[" + name + "](Start()) agent = " + agent);
+        // Debug.Log("[" + name + "](Start()) agent = " + agent);
 
         posQue = new Queue<Vector3>();
         checkPoint = transform.position;
         next = true;
+
+        switch (tag)
+        {
+            case "Inky":
+                StartCoroutine(ReadyGo(6));
+                break;
+            case "Pinky":
+                StartCoroutine(ReadyGo(12));
+                break;
+            case "Clyde":
+                StartCoroutine(ReadyGo(24));
+                break;
+        }
     }
 
     float adjustX = 0;
@@ -100,6 +118,112 @@ public class GhostScript : MonoBehaviour
 
         if (this.freeze) return;
 
+        //Debug.Log("[" + name + "](Update) moveDir = " + moveDir);
+
+        switch (this.state)
+        {
+            case GhostState.waiting:
+                WaitingMovement();
+                break;
+            case GhostState.ready:
+                ReadyMovement();
+                break;
+            default: //chase
+                DefaultMovement();
+                break;
+        }
+
+    }
+
+    IEnumerator ReadyGo(float wait)
+    {
+        yield return new WaitForSeconds(wait);
+
+        SetState(GhostState.ready);
+    }
+
+    public GhostState GetState()
+    {
+        return this.state;
+    }
+
+    public void SetState(GhostState gs)
+    {
+        this.state = gs;
+    }
+
+    public void WaitingMovement()
+    {
+        if (moveDir == Direction.up)
+        {
+            if (transform.position.z > 2.0f)
+            {
+                ChangeDirection(Direction.down);
+            }
+        } else
+        {
+            if (transform.position.z < 0)
+            {
+                ChangeDirection(Direction.up);
+            }
+        }
+        Move(moveDir);
+    }
+
+    int readyState = 0;
+
+    public void ReadyMovement()
+    {
+        switch (readyState)
+        {
+            case 0:
+                if (Mathf.Abs(transform.position.z) > 0.1f)
+                {
+                    if (transform.position.z > 0)
+                    {
+                        ChangeDirection(Direction.down);
+                    }
+                    else
+                    {
+                        ChangeDirection(Direction.up);
+                    }
+                }
+                else
+                {
+                    readyState = 1;
+                }
+                break;
+            case 1:
+                if (Mathf.Abs(transform.position.x) > 0.1f)
+                {
+                    if (transform.position.x > 0 )
+                    {
+                        ChangeDirection(Direction.left);
+                    }
+                    else
+                    {
+                        ChangeDirection(Direction.right);
+                    }
+                }
+                else
+                {
+                    readyState = 2;
+                }
+                break;
+            case 2:
+                ChangeDirection(Direction.up);
+                if (transform.position.z >= 4)
+                {
+                    SetState(GhostState.chase);
+                }
+                break;
+        }
+
+        Move(moveDir);
+    }
+
+    void DefaultMovement()
+    {
         float rx = Mathf.Floor(transform.position.x) + 0.5f;
         float rz = Mathf.Round(transform.position.z);
 
@@ -210,7 +334,6 @@ public class GhostScript : MonoBehaviour
                 }
                 break;
             default:
-                Debug.Log("none");
                 NextTarget();
                 break;
         }
@@ -248,96 +371,6 @@ public class GhostScript : MonoBehaviour
         }
     }
 
-    void tmpFunc() // reject
-    {
-        Vector3 currentPos = new Vector3(transform.position.x, 0, transform.position.z);
-        float distance = Vector3.Distance(currentPos, checkPoint);
-        float step = Time.deltaTime * 7;
-
-        if (distance > 0.15f)
-        {
-            if (transform.position.x > checkPoint.x)
-            {
-                moveDir = Direction.right;
-            }
-            else if (transform.position.x < checkPoint.x)
-            {
-                moveDir = Direction.left;
-            }
-            else if (transform.position.z > checkPoint.z)
-            {
-                moveDir = Direction.up;
-            }
-            else if (transform.position.z < checkPoint.z)
-            {
-                moveDir = Direction.down;
-            }
-            else
-            {
-                moveDir = Direction.none;
-                Debug.Log("none!");
-            }
-        }
-        else
-        {
-            if (posQue.Count > 0)
-            {
-                Vector3 prePoint = checkPoint;
-                Vector3 nxtPoint = posQue.Peek();
-
-                float diffX = nxtPoint.x - prePoint.x;
-                float diffZ = nxtPoint.z - prePoint.z;
-
-                if (Mathf.Abs(diffX) > 0 && Mathf.Abs(diffZ) > 0)
-                {
-                    switch (GetDirection())
-                    {
-                        case Direction.left:
-                        case Direction.right:
-                            checkPoint = new Vector3(nxtPoint.x, posY, prePoint.z);
-                            break;
-                        case Direction.up:
-                        case Direction.down:
-                            checkPoint = new Vector3(prePoint.x, posY, nxtPoint.z);
-                            break;
-                    }
-                    //Debug.Log(checkPoint);
-                }
-                else
-                {
-                    if (diffX > 0)
-                    {
-                        ChangeDirection(Direction.right);
-                    }
-                    else if (diffX < 0)
-                    {
-                        ChangeDirection(Direction.left);
-                    }
-                    else if (diffZ > 0)
-                    {
-                        ChangeDirection(Direction.up);
-                    }
-                    else if (diffZ < 0)
-                    {
-                        ChangeDirection(Direction.down);
-                    }
-                    else
-                    {
-
-                    }
-                    checkPoint = posQue.Dequeue();
-                    //Debug.Log(checkPoint);
-                }
-            }
-            else
-            {
-                // when posQue is empty, set next target.
-                Debug.Log("next!");
-            }
-        }
-
-    }
-
     // 動作確認用
     void Updatexxx()
     {
@@ -366,7 +399,7 @@ public class GhostScript : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("ghost trigger enter");
+        Debug.Log("["+ name + "]" + "(trigger enter) coll" + other.name);
     }
 
     public void SetDirection(Direction dir)
@@ -485,12 +518,14 @@ public class GhostScript : MonoBehaviour
             Destroy(point);
         }
 
-        // line render
+        // point render
+        /*
         for (int i = 1; i < path.corners.Length; i++)
         {
             GameObject point = Instantiate(pointPrefab);
             point.transform.position = path.corners[i];
         }
+        */
 
         //state = GhostState.chase;
     }
