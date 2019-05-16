@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class PowerCookieScript : MonoBehaviour
 {
-    GameObject controller;
+    GameController controller;
     bool freeze = true;
 
     private void Start()
     {
-        controller = GameObject.Find("GameController");
+        controller = GameObject.Find("GameController").GetComponent<GameController>();
     }
 
     public void Freeze()
@@ -28,7 +28,8 @@ public class PowerCookieScript : MonoBehaviour
         //Debug.Log("cookie trigger other = " + other);
         if (other.name == "Pacman")
         {
-            controller.GetComponent<GameController>().PlaySE(SoundEffect.ijike);
+            //controller.PlaySE(SoundEffect.ijike);
+            controller.Ghosts2Blue();
         }
     }
 

@@ -12,11 +12,19 @@ public enum Direction : int {
     left = 3
 }
 
+enum GameMode
+{
+    usual,
+    blue,
+}
+
 public enum SoundEffect
 {
     start,
     ghost,
     ijike,
+    eatghost,
+    return2home,
     none
 }
 
@@ -32,15 +40,10 @@ public struct xz
     public int z;
 }
 
-enum state
-{
-    wait,
-    rand,
-    discovery,
-}
-
 public class GameController : MonoBehaviour
 {
+    GameMode mode = GameMode.usual;
+
     int[] vx = { 0, 1, 0, -1 };
     int[] vz = { 1, 0, -1, 0 };
 
@@ -79,12 +82,21 @@ public class GameController : MonoBehaviour
     public AudioClip ghostSE;
     public AudioClip startSE;
     public AudioClip ijikeSE;
+    public AudioClip eatGhostSE;
+    public AudioClip return2HomeSE;
 
     public Text mpostext;
 
     private List<List<mapdata>> map;
-
     List<xz> passable;
+
+    int ijikeScore = 100;
+
+    float span = 0.1f;
+    float delta = 0;
+
+    public Text ScoreText;
+    int score = 0;
 
     private void Awake()
     {
@@ -109,6 +121,11 @@ public class GameController : MonoBehaviour
         navMeshsurfase.BuildNavMesh();
 
         pacmanScript = pacman.GetComponent<PlayerScript>();
+
+        blinky.GetComponent<NavMeshAgent>().enabled = false;
+        inky.GetComponent<NavMeshAgent>().enabled = false;
+        pinky.GetComponent<NavMeshAgent>().enabled = false;
+        clyde.GetComponent<NavMeshAgent>().enabled = false;
 
         blinkyScript = blinky.GetComponent<GhostScript>();
         inkyScript = inky.GetComponent<GhostScript>();
@@ -165,7 +182,12 @@ public class GameController : MonoBehaviour
 
     }
 
-    void Freeze()
+    public bool IsFreeze()
+    {
+        return this.freeze;
+    }
+
+    public void Freeze()
     {
         aud.enabled = false;
 
@@ -186,7 +208,7 @@ public class GameController : MonoBehaviour
         this.freeze = true;
     }
 
-    void UnFreeze()
+    public void UnFreeze()
     {
         GameObject[] powerCookies = GameObject.FindGameObjectsWithTag("PowerCookie");
 
@@ -204,22 +226,17 @@ public class GameController : MonoBehaviour
 
         pacmanScript.UnFreeze();
 
-        PlaySE(currentSE);
+        //PlaySE(currentSE);
+        StartBGM();
 
         this.freeze = false;
     }
 
+    float blueSpan = 10;
+
     // Update is called once per frame
     void Update()
     {
-        // これだと、余韻部分で待ちすぎになる
-        /*
-        if (!GetComponent<AudioSource>().isPlaying)
-        {
-            Debug.Log("nari owattayo!");
-        }
-        */
-
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (pause)
@@ -236,11 +253,60 @@ public class GameController : MonoBehaviour
             }
         }
 
+        if (this.freeze) return;
+
+        ScoreText.text = score.ToString();
+
+        switch (mode) {
+            case GameMode.blue:
+                delta += Time.deltaTime;
+
+                if (delta > blueSpan)
+                {
+                    mode = GameMode.usual;
+                    Ghosts2Blue(false);
+                }
+                break;
+            default:
+                break;
+        }
+
         RaycastHit hit;
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out hit))
         {
             mpostext.text = "(" + hit.point.x + ", " + hit.point.z + ")";
+        }
+    }
+
+    public float GetBlueSpan()
+    {
+        return blueSpan;
+    }
+
+    public void AddScore(int score)
+    {
+        this.score += score;
+    }
+
+    public void Ghosts2Blue(bool blue = true)
+    {
+        blinkyScript.BeBlue(blue);
+        inkyScript.BeBlue(blue);
+        pinkyScript.BeBlue(blue);
+        clydeScript.BeBlue(blue);
+
+        if (blue)
+        {
+            ijikeScore = 100;
+            delta = 0;
+            mode = GameMode.blue;
+            StartBGM();
+        }
+        else
+        {
+            mode = GameMode.usual;
+            StopSE();
         }
     }
 
@@ -257,9 +323,84 @@ public class GameController : MonoBehaviour
 
     public void PlaySE(SoundEffect se)
     {
-        StartCoroutine(ControllSE(se));
+        //StartCoroutine(ControlSE(se));
     }
 
+    public void StartBGM()
+    {
+        switch (mode)
+        {
+            case GameMode.blue:
+                StartSE(SoundEffect.ijike);
+                break;
+            default:
+                StartSE(SoundEffect.ghost);
+                break;
+        }
+    }
+
+    public void StopSE()
+    {
+        aud.Stop();
+        StartBGM();
+    }
+
+    public void StartSE(SoundEffect se = SoundEffect.ghost)
+    {
+        aud.enabled = true;
+
+        if (aud.isPlaying) aud.Stop();
+
+        switch (se)
+        {
+            case SoundEffect.ijike:
+                aud.PlayOneShot(ijikeSE);
+                break;
+            case SoundEffect.eatghost:
+                aud.PlayOneShot(eatGhostSE);
+                break;
+            case SoundEffect.return2home:
+                aud.PlayOneShot(return2HomeSE);
+                break;
+            default:
+                aud.Play();
+                break;
+        }
+    }
+
+    IEnumerator ChangeSEa(SoundEffect se)
+    {
+        aud.enabled = true;
+
+        if (aud.isPlaying) aud.Stop();
+
+        switch (se)
+        {
+            case SoundEffect.eatghost:
+                aud.PlayOneShot(eatGhostSE);
+                break;
+            case SoundEffect.return2home:
+                break;
+            default:
+                break;
+        }
+
+        if (aud.isPlaying) aud.Stop();
+
+        switch (mode)
+        {
+            case GameMode.blue:
+                aud.PlayOneShot(ijikeSE);
+                break;
+            default:
+                aud.Play();
+                break;
+        }
+
+        yield return null;
+    }
+
+    /*
     IEnumerator ControllSE(SoundEffect se)
     {
         aud.enabled = true;
@@ -272,7 +413,11 @@ public class GameController : MonoBehaviour
         {
             case SoundEffect.ijike:
                 aud.PlayOneShot(ijikeSE);
-                yield return new WaitForSeconds(5f);
+                yield return new WaitForSeconds(8f);
+                break;
+            case SoundEffect.eatghost:
+                aud.PlayOneShot(eatGhostSE);
+                yield return new WaitForSeconds(0.2f);
                 break;
             default: //ghost
                 this.currentSE = SoundEffect.ghost;
@@ -284,7 +429,7 @@ public class GameController : MonoBehaviour
         currentSE = SoundEffect.ghost;
         yield return null;
     }
-
+    */
 
     public Vector3 Coord2Xz(Vector3 coord)
     {
@@ -396,5 +541,11 @@ public class GameController : MonoBehaviour
     public List<xz> GetPassable()
     {
         return this.passable;
+    }
+
+    public int GetEatGhostScore()
+    {
+        ijikeScore *= 2;
+        return ijikeScore;
     }
 }

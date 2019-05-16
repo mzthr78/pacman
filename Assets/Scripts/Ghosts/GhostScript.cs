@@ -10,6 +10,8 @@ public enum GhostState
     ready,
     search,
     chase,
+    ijike,
+    eyes,
 }
 
 public class GhostScript : MonoBehaviour
@@ -22,10 +24,14 @@ public class GhostScript : MonoBehaviour
     public GameObject leftright;
     public GameObject updown;
 
-    float speed = 0.1f;
-    float moveSpeed = 0.1f;
+    public GameObject ijike;
+
+    private readonly float speed = 0.1f;
+    private float moveSpeed = 0.1f;
 
     bool freeze = true;
+
+    bool blue = false;
 
     public GameObject pointPrefab;
 
@@ -39,21 +45,18 @@ public class GhostScript : MonoBehaviour
     private Vector3[] checkPoints;
     private Vector3 checkPoint;
 
-    float posY = 0.5f;
+    private Queue<Vector3> posQue;
 
-    Queue<Vector3> posQue;
+    private List<List<mapdata>> map;
+    private List<xz> passable;
 
-    List<List<mapdata>> map;
-    List<xz> passable;
+    private float moveX;
+    private float moveZ;
 
-    float moveX;
-    float moveZ;
+    private readonly int[] vx = { 0, 1, 0, -1 };
+    private readonly int[] vz = { -1, 0, 1, 0 };
 
-    int[] vx = { 0, 1, 0, -1 };
-    int[] vz = { -1, 0, 1, 0 };
-
-    bool next;
-    int queSeq;
+    private bool next;
 
     public void Freeze()
     {
@@ -108,17 +111,46 @@ public class GhostScript : MonoBehaviour
         }
     }
 
-    float adjustX = 0;
-    float adjustUP = 0;
-    float adjustDown = 0;
+    private float adjustX = 0;
+    private float adjustUP = 0;
+    private float adjustDown = 0;
+
+    float delta = 0;
 
     private void Update()
     {
         //Debug.Log(tag + " freeze? " + this.freeze);
-
         if (this.freeze) return;
 
-        //Debug.Log("[" + name + "](Update) moveDir = " + moveDir);
+
+        if (blue)
+        {
+            delta += Time.deltaTime;
+
+            if (delta > controller.GetBlueSpan() * 0.4f)
+            {
+                blinkSpan = 1.2f;
+            }
+
+            if (delta > controller.GetBlueSpan() * 0.5f)
+            {
+                blinkSpan = 0.5f;
+            }
+
+            if (delta > controller.GetBlueSpan() * 0.6f)
+            {
+                blinkSpan = 0.3f;
+            }
+
+            if (delta > controller.GetBlueSpan() * 0.8f)
+            {
+                blinkSpan = 0.125f;
+            }
+        } else
+        {
+            delta = 0;
+            blinkSpan = 0;
+        }
 
         switch (this.state)
         {
@@ -129,10 +161,72 @@ public class GhostScript : MonoBehaviour
                 ReadyMovement();
                 break;
             default: //chase
-                DefaultMovement();
+                if (!blue)
+                {
+                    DefaultMovement();
+                }
+                else
+                {
+                    DefaultMovement();
+                }
                 break;
         }
+    }
 
+    public void BeBlue(bool blue = true)
+    {
+        this.blue = blue;
+
+        if (blue)
+        {
+            ijike.SetActive(true);
+
+            leftright.SetActive(false);
+            updown.SetActive(false);
+
+            moveSpeed = 0.03f;
+            blinkSpan = controller.GetBlueSpan() * 0.4f;
+
+            this.reverse = false;
+            ReverseBlue(false);
+
+            StartCoroutine(BlinkBlue());
+        }
+        else
+        {
+            ijike.SetActive(false);
+
+            moveSpeed = 0.1f;
+        }
+    }
+
+    float blinkSpan = 0;
+    bool reverse = false;
+
+    void ReverseBlue(bool rev = true)
+    {
+        if (rev)
+        {
+            ijike.transform.rotation = Quaternion.Euler(90, 90, 90);
+        }
+        else
+        {
+            ijike.transform.rotation = Quaternion.Euler(-90, 90, 90);
+        }
+    }
+
+    IEnumerator BlinkBlue()
+    {
+        while (blue)
+        {
+            yield return new WaitForSeconds(blinkSpan);
+
+            if (!freeze)
+            {
+                this.reverse = !this.reverse;
+                ReverseBlue(this.reverse);
+            }
+        }
     }
 
     IEnumerator ReadyGo(float wait)
@@ -286,8 +380,6 @@ public class GhostScript : MonoBehaviour
         {
             if (posQue != null && posQue.Count > 0)
             {
-                queSeq++;
-
                 checkPoint = posQue.Dequeue();
 
                 switch (moveDir)
@@ -397,11 +489,6 @@ public class GhostScript : MonoBehaviour
         transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal") * speed, 0, Input.GetAxisRaw("Vertical") * speed));
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        Debug.Log("["+ name + "]" + "(trigger enter) coll" + other.name);
-    }
-
     public void SetDirection(Direction dir)
     {
         this.moveDir = dir;
@@ -414,30 +501,33 @@ public class GhostScript : MonoBehaviour
 
     public void ChangeDirection(Direction dir)
     {
-        switch (dir)
+        if (!blue)
         {
-            case Direction.left:
-                leftright.SetActive(true);
-                updown.SetActive(false);
-                leftright.transform.rotation = Quaternion.Euler(270, -90, -90);
-                break;
-            case Direction.right:
-                leftright.SetActive(true);
-                updown.SetActive(false);
-                leftright.transform.rotation = Quaternion.Euler(90, 0, 0);
-                break;
-            case Direction.up:
-                leftright.SetActive(false);
-                updown.SetActive(true);
-                updown.transform.rotation = Quaternion.Euler(270, -90, -90);
-                break;
-            case Direction.down:
-                leftright.SetActive(false);
-                updown.SetActive(true);
-                updown.transform.rotation = Quaternion.Euler(90, 0, 0);
-                break;
-            default:
-                break;
+            switch (dir)
+            {
+                case Direction.left:
+                    leftright.SetActive(true);
+                    updown.SetActive(false);
+                    leftright.transform.rotation = Quaternion.Euler(270, -90, -90);
+                    break;
+                case Direction.right:
+                    leftright.SetActive(true);
+                    updown.SetActive(false);
+                    leftright.transform.rotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                case Direction.up:
+                    leftright.SetActive(false);
+                    updown.SetActive(true);
+                    updown.transform.rotation = Quaternion.Euler(270, -90, -90);
+                    break;
+                case Direction.down:
+                    leftright.SetActive(false);
+                    updown.SetActive(true);
+                    updown.transform.rotation = Quaternion.Euler(90, 0, 0);
+                    break;
+                default:
+                    break;
+            }
         }
         this.moveDir = dir;
     }
@@ -446,7 +536,7 @@ public class GhostScript : MonoBehaviour
     {
         ChangeDirection(dir);
 
-        if (freeze) return;
+        if (this.freeze) return;
 
         switch (dir)
         {
@@ -486,7 +576,6 @@ public class GhostScript : MonoBehaviour
 
     public void SearchTarget(Transform target)
     {
-        queSeq = 0;
         if (posQue != null && posQue.Count > 0)
         {
             posQue.Clear();
@@ -497,6 +586,8 @@ public class GhostScript : MonoBehaviour
         path = new NavMeshPath();
 
         agent = GetComponent<NavMeshAgent>();
+
+        agent.enabled = true;
 
         agent.CalculatePath(target.position, path);
 
@@ -528,6 +619,8 @@ public class GhostScript : MonoBehaviour
         */
 
         //state = GhostState.chase;
+
+        agent.enabled = false;
     }
 
     public Vector3[] GetCorners()
@@ -535,4 +628,29 @@ public class GhostScript : MonoBehaviour
         return this.checkPoints;
     }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag != "Player") return;
+
+        if (blue)
+        {
+            StartCoroutine(Eaten());
+        }
+    }
+
+    IEnumerator Eaten()
+    {
+        // display score;
+        controller.StartSE(SoundEffect.eatghost);
+
+        controller.Freeze();
+
+
+
+        yield return new WaitForSeconds(1);
+
+        controller.UnFreeze();
+
+        controller.StartSE(SoundEffect.return2home);
+    }
 }

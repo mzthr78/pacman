@@ -31,7 +31,6 @@ public class PlayerScript : MonoBehaviour
     public void Freeze()
     {
         this.freeze = true;
-        StopCoroutine(Pacpac());
     }
 
     public void UnFreeze()
@@ -39,7 +38,6 @@ public class PlayerScript : MonoBehaviour
         //dir = Direction.left;
         //StartCoroutine(Pacpac());
         this.freeze = false;
-        StartCoroutine(Pacpac());
     }
 
     private void Start()
@@ -64,29 +62,32 @@ public class PlayerScript : MonoBehaviour
     // pac-man pacpac
     IEnumerator Pacpac()
     {
-        while (!this.freeze)
+        while (true)
         {
-            pac += incdec;
-
-            switch (pac)
+            if (!this.freeze)
             {
-                case 0:
-                    pacman.SetActive(false);
-                    pacmano.SetActive(false);
-                    pacmanc.SetActive(true);
-                    incdec = 1;
-                    break;
-                case 1:
-                    pacmanc.SetActive(false);
-                    pacmano.SetActive(false);
-                    pacman.SetActive(true);
-                    break;
-                case 2:
-                    pacmanc.SetActive(false);
-                    pacman.SetActive(false);
-                    pacmano.SetActive(true);
-                    incdec = -1;
-                    break;
+                pac += incdec;
+
+                switch (pac)
+                {
+                    case 0:
+                        pacman.SetActive(false);
+                        pacmano.SetActive(false);
+                        pacmanc.SetActive(true);
+                        incdec = 1;
+                        break;
+                    case 1:
+                        pacmanc.SetActive(false);
+                        pacmano.SetActive(false);
+                        pacman.SetActive(true);
+                        break;
+                    case 2:
+                        pacmanc.SetActive(false);
+                        pacman.SetActive(false);
+                        pacmano.SetActive(true);
+                        incdec = -1;
+                        break;
+                }
             }
 
             yield return new WaitForSeconds(0.07f);
@@ -194,6 +195,7 @@ public class PlayerScript : MonoBehaviour
             switch (dirobj[(int)tmpdir])
             {
                 case '#':
+                case '-':
                     break;
                 default:
                     reservedir = tmpdir;
@@ -225,25 +227,30 @@ public class PlayerScript : MonoBehaviour
 
         if ((int)dir >= 0 && (int)dir < 4)
         {
-            if (dirobj[(int)dir] == '#')
+            switch (dirobj[(int)dir]) 
             {
-                switch (dir)
-                {
-                    case Direction.right:
-                    case Direction.left:
-                        if (Mathf.Abs(transform.position.x - rx) < 0.01f)
-                        {
-                            dir = Direction.none;
-                        }
-                        break;
-                    case Direction.up:
-                    case Direction.down:
-                        if (Mathf.Abs(transform.position.z - rz) < 0.01f)
-                        {
-                            dir = Direction.none;
-                        }
-                        break;
-                }
+                case '#':
+                case '-':
+                    switch (dir)
+                    {
+                        case Direction.right:
+                        case Direction.left:
+                            if (Mathf.Abs(transform.position.x - rx) < 0.01f)
+                            {
+                                dir = Direction.none;
+                            }
+                            break;
+                        case Direction.up:
+                        case Direction.down:
+                            if (Mathf.Abs(transform.position.z - rz) < 0.01f)
+                            {
+                                dir = Direction.none;
+                            }
+                            break;
+                    }
+                    break;
+                default:
+                    break;
             }
         }
 

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class TitleController : MonoBehaviour
 {
+    public GameObject panel;
     public AudioClip creditSE;
 
     bool pressed = false;
@@ -19,15 +21,15 @@ public class TitleController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //Time.deltaTime;
         if (Input.GetMouseButton(0) || Input.anyKeyDown)
         {
+
             if (!pressed)
             {
                 StartCoroutine(PlayCreditSE());
                 pressed = true;
             }
-
-            //StartCoroutine(LoadGameScene());
         }
     }
 
