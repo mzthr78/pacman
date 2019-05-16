@@ -25,8 +25,9 @@ public class GhostScript : MonoBehaviour
     public GameObject updown;
 
     public GameObject ijike;
+    public GameObject eatScore;
 
-    private readonly float speed = 0.1f;
+    private readonly float baseSpeed = 0.1f;
     private float moveSpeed = 0.1f;
 
     bool freeze = true;
@@ -173,6 +174,32 @@ public class GhostScript : MonoBehaviour
         }
     }
 
+    float GetSpeed()
+    {
+        if (blue) return 0.03f;
+
+        float speed = baseSpeed;
+        switch (tag)
+        {
+            case "Blinky":
+                speed *= 1.02f;
+                break;
+            case "Inky":
+                speed *= 1.2f;
+                break;
+            case "Pinky":
+                speed *= 1f;
+                break;
+            case "Clyde":
+                speed *= 0.5f;
+                break;
+            default:
+                speed *= 1f;
+                break;
+        }
+        return speed;
+    }
+
     public void BeBlue(bool blue = true)
     {
         this.blue = blue;
@@ -195,8 +222,7 @@ public class GhostScript : MonoBehaviour
         else
         {
             ijike.SetActive(false);
-
-            moveSpeed = 0.1f;
+            moveSpeed = GetSpeed();
         }
     }
 
@@ -232,7 +258,6 @@ public class GhostScript : MonoBehaviour
     IEnumerator ReadyGo(float wait)
     {
         yield return new WaitForSeconds(wait);
-
         SetState(GhostState.ready);
     }
 
@@ -312,7 +337,6 @@ public class GhostScript : MonoBehaviour
                 }
                 break;
         }
-
         Move(moveDir);
     }
 
@@ -397,14 +421,12 @@ public class GhostScript : MonoBehaviour
                         adjustDown = 0;
                         break;
                 }
-
                 NextDir(dirobj);
             }
             else
             {
                 moveDir = Direction.none;
             }
-
             next = false;
         }
 
@@ -486,7 +508,7 @@ public class GhostScript : MonoBehaviour
         {
 
         }
-        transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal") * speed, 0, Input.GetAxisRaw("Vertical") * speed));
+        transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal") * GetSpeed(), 0, Input.GetAxisRaw("Vertical") * GetSpeed()));
     }
 
     public void SetDirection(Direction dir)
@@ -561,7 +583,7 @@ public class GhostScript : MonoBehaviour
                 moveZ = 0;
                 break;
         }
-        transform.Translate(moveX * moveSpeed, 0, moveZ * moveSpeed);
+        transform.Translate(moveX * GetSpeed(), 0, moveZ * GetSpeed());
     }
 
     public void ChasePacman()
@@ -584,11 +606,8 @@ public class GhostScript : MonoBehaviour
         //Debug.Log("[" + name + "](SearchTarget)target.name = " + target.name);
 
         path = new NavMeshPath();
-
         agent = GetComponent<NavMeshAgent>();
-
         agent.enabled = true;
-
         agent.CalculatePath(target.position, path);
 
         int range = path.corners.Length;
@@ -645,9 +664,16 @@ public class GhostScript : MonoBehaviour
 
         controller.Freeze();
 
+        ijike.SetActive(false);
 
+        eatScore.GetComponent<TextMesh>().text = controller.GetEatGhostScore().ToString();
+        eatScore.transform.position = gameObject.transform.position;
+        eatScore.transform.Translate(-2.5f, 0, 15);
+        eatScore.SetActive(true);
 
         yield return new WaitForSeconds(1);
+
+        eatScore.SetActive(false);
 
         controller.UnFreeze();
 
