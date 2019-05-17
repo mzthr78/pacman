@@ -50,7 +50,7 @@ public class SightScript : MonoBehaviour
             if (hit.transform.name == "Pacman")
             {
                 findPacman = true;
-                Debug.Log("discovery pacman");
+                //Debug.Log("discovery pacman");
             }
             else
             {

@@ -329,4 +329,26 @@ public class PlayerScript : MonoBehaviour
 
     }
 
+    public void Death()
+    {
+        StartCoroutine(Dead());
+    }
+
+    IEnumerator Dead()
+    {
+        controller.Freeze();
+
+        yield return new WaitForSeconds(1.5f);
+
+        controller.StartSE(SoundEffect.death);
+        yield return new WaitForSeconds(3);
+
+        controller.Reset();
+    }
+
+    public void Reset()
+    {
+        transform.position = new Vector3(0, 0, -8);
+        Move(Direction.left);
+    }
 }

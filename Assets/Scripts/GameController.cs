@@ -12,7 +12,7 @@ public enum Direction : int {
     left = 3
 }
 
-enum GameMode
+public enum GameMode
 {
     usual,
     blue,
@@ -24,7 +24,8 @@ public enum SoundEffect
     ghost,
     ijike,
     eatghost,
-    return2home,
+    gohome,
+    death,
     none
 }
 
@@ -83,7 +84,8 @@ public class GameController : MonoBehaviour
     public AudioClip startSE;
     public AudioClip ijikeSE;
     public AudioClip eatGhostSE;
-    public AudioClip return2HomeSE;
+    public AudioClip goHomeSE;
+    public AudioClip deathSE;
 
     public Text mpostext;
 
@@ -97,6 +99,13 @@ public class GameController : MonoBehaviour
 
     public Text ScoreText;
     int score = 0;
+
+    int goHome = 0;
+    int remain = 3;
+
+    public GameObject PacmanR1;
+    public GameObject PacmanR2;
+    public GameObject PacmanR3;
 
     private void Awake()
     {
@@ -132,7 +141,7 @@ public class GameController : MonoBehaviour
         pinkyScript = pinky.GetComponent<GhostScript>();
         clydeScript = clyde.GetComponent<GhostScript>();
 
-        blinkyScript.SetState(GhostState.chase);
+        blinkyScript.SetState(GhostState.usual);
         inkyScript.SetState(GhostState.waiting);
         pinkyScript.SetState(GhostState.waiting);
         clydeScript.SetState(GhostState.waiting);
@@ -279,6 +288,11 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public GameMode GetGameMode()
+    {
+        return this.mode;
+    }
+
     public float GetBlueSpan()
     {
         return blueSpan;
@@ -328,14 +342,37 @@ public class GameController : MonoBehaviour
 
     public void StartBGM()
     {
-        switch (mode)
+        if (goHome > 0)
         {
-            case GameMode.blue:
-                StartSE(SoundEffect.ijike);
-                break;
-            default:
-                StartSE(SoundEffect.ghost);
-                break;
+            StartSE(SoundEffect.gohome);
+        }
+        else
+        {
+            switch (mode)
+            {
+                case GameMode.blue:
+                    StartSE(SoundEffect.ijike);
+                    break;
+                default:
+                    StartSE(SoundEffect.ghost);
+                    break;
+            }
+        }
+    }
+
+    public void IncreaseGoHome()
+    {
+        if (this.goHome < 3)
+        {
+            this.goHome++;
+        }
+    }
+
+    public void DecreaseGoHome()
+    {
+        if (this.goHome > 0)
+        {
+            this.goHome--;
         }
     }
 
@@ -359,77 +396,17 @@ public class GameController : MonoBehaviour
             case SoundEffect.eatghost:
                 aud.PlayOneShot(eatGhostSE);
                 break;
-            case SoundEffect.return2home:
-                aud.PlayOneShot(return2HomeSE);
+            case SoundEffect.gohome:
+                aud.PlayOneShot(goHomeSE);
+                break;
+            case SoundEffect.death:
+                aud.PlayOneShot(deathSE);
                 break;
             default:
                 aud.Play();
                 break;
         }
     }
-
-    IEnumerator ChangeSEa(SoundEffect se)
-    {
-        aud.enabled = true;
-
-        if (aud.isPlaying) aud.Stop();
-
-        switch (se)
-        {
-            case SoundEffect.eatghost:
-                aud.PlayOneShot(eatGhostSE);
-                break;
-            case SoundEffect.return2home:
-                break;
-            default:
-                break;
-        }
-
-        if (aud.isPlaying) aud.Stop();
-
-        switch (mode)
-        {
-            case GameMode.blue:
-                aud.PlayOneShot(ijikeSE);
-                break;
-            default:
-                aud.Play();
-                break;
-        }
-
-        yield return null;
-    }
-
-    /*
-    IEnumerator ControllSE(SoundEffect se)
-    {
-        aud.enabled = true;
-
-        if (aud.isPlaying) aud.Stop();
-
-        this.currentSE = se;
-
-        switch (se)
-        {
-            case SoundEffect.ijike:
-                aud.PlayOneShot(ijikeSE);
-                yield return new WaitForSeconds(8f);
-                break;
-            case SoundEffect.eatghost:
-                aud.PlayOneShot(eatGhostSE);
-                yield return new WaitForSeconds(0.2f);
-                break;
-            default: //ghost
-                this.currentSE = SoundEffect.ghost;
-                break;
-        }
-
-        if (aud.isPlaying) aud.Stop();
-        aud.Play();
-        currentSE = SoundEffect.ghost;
-        yield return null;
-    }
-    */
 
     public Vector3 Coord2Xz(Vector3 coord)
     {
@@ -545,7 +522,31 @@ public class GameController : MonoBehaviour
 
     public int GetEatGhostScore()
     {
+        score += ijikeScore;
         ijikeScore *= 2;
         return ijikeScore;
+    }
+
+    public void DecreasePacman()
+    {
+        remain--;
+
+        if (remain < 3) PacmanR3.SetActive(false);
+        if (remain < 2) PacmanR2.SetActive(false);
+        if (remain < 1) PacmanR1.SetActive(false);
+    }
+
+    public void Reset()
+    {
+        DecreasePacman();
+
+        blinkyScript.Reset();
+        inkyScript.Reset();
+        pinkyScript.Reset();
+        clydeScript.Reset();
+
+        pacmanScript.Reset();
+
+        UnFreeze();
     }
 }

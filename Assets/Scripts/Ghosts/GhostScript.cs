@@ -9,9 +9,10 @@ public enum GhostState
     waiting,
     ready,
     search,
-    chase,
+    usual,
     ijike,
     eyes,
+    gohome,
 }
 
 public class GhostScript : MonoBehaviour
@@ -25,7 +26,11 @@ public class GhostScript : MonoBehaviour
     public GameObject updown;
 
     public GameObject ijike;
-    public GameObject eatScore;
+
+    public GameObject eyes;
+    public GameObject eyesLr;
+    public GameObject eyesUd;
+    public GameObject point;
 
     private readonly float baseSpeed = 0.1f;
     private float moveSpeed = 0.1f;
@@ -33,8 +38,6 @@ public class GhostScript : MonoBehaviour
     bool freeze = true;
 
     bool blue = false;
-
-    public GameObject pointPrefab;
 
     private Direction moveDir;
 
@@ -110,6 +113,10 @@ public class GhostScript : MonoBehaviour
                 StartCoroutine(ReadyGo(24));
                 break;
         }
+
+        point.SetActive(false);
+
+        prePos = transform.position;
     }
 
     private float adjustX = 0;
@@ -118,11 +125,23 @@ public class GhostScript : MonoBehaviour
 
     float delta = 0;
 
+    Vector3 prePos;
+    int stagnation = 0;
+
     private void Update()
     {
         //Debug.Log(tag + " freeze? " + this.freeze);
         if (this.freeze) return;
 
+        if (transform.position == prePos)
+        {
+            stagnation++;
+            //Debug.Log("[" + name + "] stagnation=" + stagnation);
+        } else
+        {
+            stagnation = 0;
+        }
+        prePos = transform.position;
 
         if (blue)
         {
@@ -161,6 +180,9 @@ public class GhostScript : MonoBehaviour
             case GhostState.ready:
                 ReadyMovement();
                 break;
+            case GhostState.gohome:
+                GoHomeMovement();
+                break;
             default: //chase
                 if (!blue)
                 {
@@ -172,11 +194,53 @@ public class GhostScript : MonoBehaviour
                 }
                 break;
         }
+
+        if (state == GhostState.eyes)
+        {
+            if (Vector3.Distance(transform.position, targetObj.transform.position) < 2)
+            {
+                state = GhostState.gohome;
+            }
+        }
+
+        if (Mathf.Abs(transform.position.z) > 15 || Mathf.Abs(transform.position.x) > 13.5f || stagnation > 50)
+        {
+            switch (state)
+            {
+                case GhostState.eyes:
+                case GhostState.gohome:
+                    controller.DecreaseGoHome();
+                    break;
+            }
+            Reset();
+        }
+    }
+
+    public void Reset()
+    {
+        state = GhostState.ready;
+
+        switch (tag)
+        {
+            case "Blinky":
+                transform.position = new Vector3(0, 0, 4);
+                break;
+            case "Inky":
+                transform.position = new Vector3(-1.5f, 0, 1);
+                break;
+            case "Pinky":
+                transform.position = new Vector3(0, 0, 1);
+                break;
+            case "Clyde":
+                transform.position = new Vector3(1.5f, 0, 1);
+                break;
+        }
     }
 
     float GetSpeed()
     {
         if (blue) return 0.03f;
+        if (state == GhostState.eyes) return 0.15f;
 
         float speed = baseSpeed;
         switch (tag)
@@ -333,8 +397,74 @@ public class GhostScript : MonoBehaviour
                 ChangeDirection(Direction.up);
                 if (transform.position.z >= 4)
                 {
-                    SetState(GhostState.chase);
+                    SetState(GhostState.usual);
                 }
+                break;
+        }
+        Move(moveDir);
+    }
+
+    int goHomeState = 0;
+
+    void GoHomeMovement()
+    {
+        Debug.Log("[" + name + "]" + "(gohome movement) state=" + goHomeState);
+
+        switch (goHomeState)
+        {
+            case 0:
+                if (Mathf.Abs(transform.position.z) > 5f)
+                {
+                    if (transform.position.z > 0)
+                    {
+                        ChangeDirection(Direction.down);
+                    }
+                    else
+                    {
+                        ChangeDirection(Direction.up);
+                    }
+                }
+                else
+                {
+                    goHomeState++;
+                }
+                break;
+            case 1:
+                if (Mathf.Abs(transform.position.x) > 0.1f)
+                {
+                    if (transform.position.x > 0)
+                    {
+                        ChangeDirection(Direction.left);
+                    }
+                    else
+                    {
+                        ChangeDirection(Direction.right);
+                    }
+                }
+                else
+                {
+                    goHomeState++;
+                }
+                break;
+            case 2:
+                if (Mathf.Abs(transform.position.z) > 1.1f)
+                {
+                    ChangeDirection(Direction.down);
+                }
+                else
+                {
+                    goHomeState++;
+                }
+                break;
+            case 3:
+                eyes.SetActive(false);
+                eyesLr.SetActive(false);
+                eyesUd.SetActive(false);
+                state = GhostState.ready;
+                next = true;
+                goHomeState = 0;
+                controller.DecreaseGoHome();
+                controller.StopSE();
                 break;
         }
         Move(moveDir);
@@ -454,10 +584,45 @@ public class GhostScript : MonoBehaviour
         Move(moveDir);
     }
 
+    int trials = 0;
+
     void NextTarget()
     {
-        xz xz = passable[Random.Range(0, passable.Count)];
-        targetObj.transform.position = controller.Xz2Coord(xz.x, xz.z);
+        if (state != GhostState.eyes)
+        {
+            xz xz = passable[Random.Range(0, passable.Count)];
+            targetObj.transform.position = controller.Xz2Coord(xz.x, xz.z);
+        } else
+        {
+            if (transform.position.x > 0)
+            {
+                targetObj.transform.position = new Vector3(0.5f, 0, 4);
+            }
+            else
+            {
+                targetObj.transform.position = new Vector3(-0.5f, 0, 4);
+            }
+
+            trials = 0;
+
+            if (Vector3.Distance(transform.position, targetObj.transform.position) < 2)
+            {
+                state = GhostState.gohome;
+            } 
+            else
+            {
+                switch (trials)
+                {
+                    case 0:
+                        targetObj.transform.position = new Vector3(1, 0, 4);
+                        break;
+                    default:
+                        targetObj.transform.position = new Vector3(0, 0, 4);
+                        break;
+                }
+                trials++;
+            }
+        }
         ChaseTarget();
     }
 
@@ -528,24 +693,67 @@ public class GhostScript : MonoBehaviour
             switch (dir)
             {
                 case Direction.left:
-                    leftright.SetActive(true);
-                    updown.SetActive(false);
-                    leftright.transform.rotation = Quaternion.Euler(270, -90, -90);
+                    switch (state) {
+                        case GhostState.eyes:
+                        case GhostState.gohome:
+                            eyesLr.SetActive(true);
+                            eyesUd.SetActive(false);
+                            eyesLr.transform.rotation = Quaternion.Euler(-90, 90, 90);
+                            break;
+                        default:
+                            leftright.SetActive(true);
+                            updown.SetActive(false);
+                            leftright.transform.rotation = Quaternion.Euler(270, -90, -90);
+                            break;
+                    }
                     break;
                 case Direction.right:
-                    leftright.SetActive(true);
-                    updown.SetActive(false);
-                    leftright.transform.rotation = Quaternion.Euler(90, 0, 0);
+                    switch (state)
+                    {
+                        case GhostState.eyes:
+                        case GhostState.gohome:
+                            eyesLr.SetActive(true);
+                            eyesUd.SetActive(false);
+                            eyesLr.transform.rotation = Quaternion.Euler(90, 90, 90);
+                            break;
+                        default:
+                            leftright.SetActive(true);
+                            updown.SetActive(false);
+                            leftright.transform.rotation = Quaternion.Euler(90, 0, 0);
+                            break;
+                    }
                     break;
                 case Direction.up:
-                    leftright.SetActive(false);
-                    updown.SetActive(true);
-                    updown.transform.rotation = Quaternion.Euler(270, -90, -90);
+                    switch (state)
+                    {
+                        case GhostState.eyes:
+                        case GhostState.gohome:
+                            eyesLr.SetActive(false);
+                            eyesUd.SetActive(true);
+                            eyesUd.transform.rotation = Quaternion.Euler(-90, 90, 90);
+                            break;
+                        default:
+                            leftright.SetActive(false);
+                            updown.SetActive(true);
+                            updown.transform.rotation = Quaternion.Euler(270, -90, -90);
+                            break;
+                    }
                     break;
                 case Direction.down:
-                    leftright.SetActive(false);
-                    updown.SetActive(true);
-                    updown.transform.rotation = Quaternion.Euler(90, 0, 0);
+                    switch (state)
+                    {
+                        case GhostState.eyes:
+                        case GhostState.gohome:
+                            eyesLr.SetActive(false);
+                            eyesUd.SetActive(true);
+                            eyesUd.transform.rotation = Quaternion.Euler(90, 90, 90);
+                            break;
+                        default:
+                            leftright.SetActive(false);
+                            updown.SetActive(true);
+                            updown.transform.rotation = Quaternion.Euler(90, 0, 0);
+                            break;
+                    }
                     break;
                 default:
                     break;
@@ -653,7 +861,28 @@ public class GhostScript : MonoBehaviour
 
         if (blue)
         {
-            StartCoroutine(Eaten());
+            switch (state) {
+                case GhostState.ijike:
+                case GhostState.eyes:
+                case GhostState.gohome:
+                case GhostState.waiting:
+                    break;
+                default:
+                    StartCoroutine(Eaten());
+                    break;
+            }
+        } else
+        {
+            switch (state)
+            {
+                case GhostState.ijike:
+                case GhostState.eyes:
+                case GhostState.gohome:
+                    break;
+                default:
+                    pacman.GetComponent<PlayerScript>().Death();
+                    break;
+            }
         }
     }
 
@@ -665,18 +894,25 @@ public class GhostScript : MonoBehaviour
         controller.Freeze();
 
         ijike.SetActive(false);
+        eyes.SetActive(true);
+        eyesLr.SetActive(true);
 
-        eatScore.GetComponent<TextMesh>().text = controller.GetEatGhostScore().ToString();
-        eatScore.transform.position = gameObject.transform.position;
-        eatScore.transform.Translate(-2.5f, 0, 15);
-        eatScore.SetActive(true);
+        point.GetComponent<TextMesh>().text = controller.GetEatGhostScore().ToString();
+        point.SetActive(true);
+
+        controller.StartSE(SoundEffect.eatghost);
+        controller.IncreaseGoHome();
 
         yield return new WaitForSeconds(1);
 
-        eatScore.SetActive(false);
+        point.SetActive(false);
 
         controller.UnFreeze();
 
-        controller.StartSE(SoundEffect.return2home);
+        state = GhostState.eyes;
+        blue = false;
+        posQue.Clear();
+
+        controller.StartBGM();
     }
 }
