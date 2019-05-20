@@ -15,7 +15,7 @@ public class CookieScript : MonoBehaviour
         //Debug.Log("cookie trigger other = " + other);
         if (other.name == "Pacman")
         {
-            controller.AddScore(10);
+            controller.EatCookie();
             Destroy(gameObject);
         }
     }

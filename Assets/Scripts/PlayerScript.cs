@@ -343,7 +343,13 @@ public class PlayerScript : MonoBehaviour
         controller.StartSE(SoundEffect.death);
         yield return new WaitForSeconds(3);
 
-        controller.Reset();
+        controller.DecreasePacman();
+
+        // ここじゃない
+        if (controller.PacmanRemain() >= 0)
+        {
+            controller.Reset();
+        }
     }
 
     public void Reset()

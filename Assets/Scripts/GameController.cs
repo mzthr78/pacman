@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public enum Direction : int {
     none = -1,
@@ -44,9 +45,6 @@ public struct xz
 public class GameController : MonoBehaviour
 {
     GameMode mode = GameMode.usual;
-
-    int[] vx = { 0, 1, 0, -1 };
-    int[] vz = { 1, 0, -1, 0 };
 
     public GameObject obstructPrefab;
 
@@ -92,7 +90,11 @@ public class GameController : MonoBehaviour
     private List<List<mapdata>> map;
     List<xz> passable;
 
+    int[] vx = { 0, 1, 0, -1 };
+    int[] vz = { 1, 0, -1, 0 };
+
     int ijikeScore = 100;
+    int cookieCount = 0;
 
     float span = 0.1f;
     float delta = 0;
@@ -495,10 +497,12 @@ public class GameController : MonoBehaviour
                     case '.':
                         GameObject cookie = Instantiate(cookiePrefab);
                         cookie.transform.position = new Vector3(-13.5f + j, 0.1f, 15 - i);
+                        cookieCount++;
                         break;
                     case '@':
                         GameObject powerCookie = Instantiate(powerCookiePrefab);
                         powerCookie.transform.position = new Vector3(-13.5f + j, 0.1f, 15 - i);
+                        cookieCount++;
                         break;
                     default:
                         break;
@@ -534,12 +538,20 @@ public class GameController : MonoBehaviour
         if (remain < 3) PacmanR3.SetActive(false);
         if (remain < 2) PacmanR2.SetActive(false);
         if (remain < 1) PacmanR1.SetActive(false);
+
+        if (remain < 0)
+        {
+            StartCoroutine(GameOver());
+        }
+    }
+
+    public int PacmanRemain()
+    {
+        return this.remain;
     }
 
     public void Reset()
     {
-        DecreasePacman();
-
         blinkyScript.Reset();
         inkyScript.Reset();
         pinkyScript.Reset();
@@ -548,5 +560,40 @@ public class GameController : MonoBehaviour
         pacmanScript.Reset();
 
         UnFreeze();
+    }
+
+    public int GetCookieCount()
+    {
+        return this.cookieCount;
+    }
+
+    public void EatCookie()
+    {
+        cookieCount--;
+        AddScore(10);
+        //Debug.Log("cookieCount=" + cookieCount);
+
+        if (cookieCount < 1)
+        {
+            StartCoroutine(GameClear());
+        }
+    }
+
+    IEnumerator GameClear()
+    {
+        Freeze();
+
+        yield return new WaitForSeconds(2);
+
+        SceneManager.LoadScene("ClearScene");
+    }
+
+    IEnumerator GameOver()
+    {
+        Freeze();
+
+        yield return new WaitForSeconds(1);
+
+        SceneManager.LoadScene("GameOverScene");
     }
 }
