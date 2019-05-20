@@ -11,6 +11,7 @@ TagManager:
   - Pinky
   - Clyde
   - Point
+  - Obstruct
   layers:
   - Default
   - TransparentFX

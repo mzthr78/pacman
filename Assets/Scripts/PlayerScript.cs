@@ -10,6 +10,8 @@ public class PlayerScript : MonoBehaviour
     public GameObject pacmano;
     public GameObject pacmanc;
 
+    public GameObject miss;
+
     public AudioClip cookieSE;
 
     List<List<mapdata>> map;
@@ -337,8 +339,9 @@ public class PlayerScript : MonoBehaviour
     IEnumerator Dead()
     {
         controller.Freeze();
-
         yield return new WaitForSeconds(1.5f);
+
+        miss.GetComponent<MissScript>().miss();
 
         controller.StartSE(SoundEffect.death);
         yield return new WaitForSeconds(3);
