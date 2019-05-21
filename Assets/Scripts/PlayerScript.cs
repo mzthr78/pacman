@@ -256,6 +256,16 @@ public class PlayerScript : MonoBehaviour
             }
         }
 
+        if (dir == Direction.left && transform.position.x < -15)
+        {
+            transform.position = new Vector3(15, transform.position.y, transform.position.z);
+        }
+
+        if (dir == Direction.right && transform.position.x > 15)
+        {
+            transform.position = new Vector3(-15, transform.position.y, transform.position.z);
+        }
+
         Move(dir);
     }
 
