@@ -61,6 +61,8 @@ public class GameController : MonoBehaviour
     public GameObject pinky;
     public GameObject clyde;
 
+    public GameObject fruits;
+
     bool freeze = false;
     bool pause = false;
 
@@ -103,7 +105,7 @@ public class GameController : MonoBehaviour
     int score = 0;
 
     int goHome = 0;
-    int remain = 3;
+    int remain = 0;
 
     public GameObject PacmanR1;
     public GameObject PacmanR2;
@@ -152,6 +154,7 @@ public class GameController : MonoBehaviour
         navRouteBlinky.SetActive(true);
 
         StartCoroutine(LetsStart());
+        StartCoroutine(ShowFruits(30));
     }
 
     IEnumerator LetsStart()
@@ -592,8 +595,15 @@ public class GameController : MonoBehaviour
     {
         Freeze();
 
-        yield return new WaitForSeconds(1);
+        yield return new WaitForSeconds(0.1f);
 
         SceneManager.LoadScene("GameOverScene");
+    }
+
+    IEnumerator ShowFruits(float sec)
+    {
+        yield return new WaitForSeconds(sec);
+
+        fruits.SetActive(true);
     }
 }

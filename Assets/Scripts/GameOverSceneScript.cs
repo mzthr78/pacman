@@ -97,7 +97,7 @@ public class GameOverSceneScript : MonoBehaviour
         yield return new WaitForSeconds(0.8f);
         */
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(0.5f);
         infoText.SetActive(true);
     }
 }

@@ -4,8 +4,7 @@ MonoImporter:
   externalObjects: {}
   serializedVersion: 2
   defaultReferences:
-  - obstructPrefab: {fileID: 6873992148489423115, guid: 430a789b3d220485c951ff8dff692c2b,
-      type: 3}
+  - obstructPrefab: {instanceID: 0}
   - cookiePrefab: {instanceID: 0}
   - powerCookiePrefab: {instanceID: 0}
   - navMeshsurfase: {instanceID: 0}
@@ -14,12 +13,21 @@ MonoImporter:
   - inky: {instanceID: 0}
   - pinky: {instanceID: 0}
   - clyde: {instanceID: 0}
+  - fruits: {instanceID: 0}
   - sightBlinky: {instanceID: 0}
   - navRouteBlinky: {instanceID: 0}
+  - infoText: {instanceID: 0}
   - ghostSE: {fileID: 8300000, guid: 1f397b4a21f2f44e9912af0ef7ae4b8e, type: 3}
   - startSE: {instanceID: 0}
   - ijikeSE: {instanceID: 0}
+  - eatGhostSE: {instanceID: 0}
+  - goHomeSE: {instanceID: 0}
+  - deathSE: {instanceID: 0}
   - mpostext: {instanceID: 0}
+  - ScoreText: {instanceID: 0}
+  - PacmanR1: {instanceID: 0}
+  - PacmanR2: {instanceID: 0}
+  - PacmanR3: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

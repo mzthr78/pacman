@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 public enum GhostState
 {
@@ -408,7 +409,7 @@ public class GhostScript : MonoBehaviour
 
     void GoHomeMovement()
     {
-        Debug.Log("[" + name + "]" + "(gohome movement) state=" + goHomeState);
+        //Debug.Log("[" + name + "]" + "(gohome movement) state=" + goHomeState);
 
         switch (goHomeState)
         {
@@ -897,7 +898,8 @@ public class GhostScript : MonoBehaviour
         eyes.SetActive(true);
         eyesLr.SetActive(true);
 
-        point.GetComponent<TextMesh>().text = controller.GetEatGhostScore().ToString();
+        point.GetComponent<Text>().text = controller.GetEatGhostScore().ToString();
+        point.transform.position = RectTransformUtility.WorldToScreenPoint(Camera.main, transform.position);
         point.SetActive(true);
 
         controller.StartSE(SoundEffect.eatghost);
