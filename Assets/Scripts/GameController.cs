@@ -105,7 +105,7 @@ public class GameController : MonoBehaviour
     int score = 0;
 
     int goHome = 0;
-    int remain = 0;
+    int remain = 3;
 
     public GameObject PacmanR1;
     public GameObject PacmanR2;
@@ -251,6 +251,13 @@ public class GameController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out hit))
+        {
+            mpostext.text = "(" + hit.point.x + ", " + hit.point.z + ")";
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (pause)
@@ -283,13 +290,6 @@ public class GameController : MonoBehaviour
                 break;
             default:
                 break;
-        }
-
-        RaycastHit hit;
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out hit))
-        {
-            mpostext.text = "(" + hit.point.x + ", " + hit.point.z + ")";
         }
     }
 

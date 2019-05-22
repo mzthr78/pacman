@@ -1,22 +1,25 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class SightScript : MonoBehaviour
 {
     public GameObject ghost;
+    public GameObject pacman;
     GhostScript ghostScript;
 
     LineRenderer line;
     float distance = 30.0f;
 
-    bool findPacman = false;
+    bool find = false;
 
     // Start is called before the first frame update
     void Start()
     {
         line = GetComponent<LineRenderer>();
         ghostScript = ghost.GetComponent<GhostScript>();
+        GetComponent<LineRenderer>().enabled = false;
     }
 
     // Update is called once per frame
@@ -42,32 +45,34 @@ public class SightScript : MonoBehaviour
                 to = from - transform.forward * sightLen;
                 break;
         }
+
         Vector3[] positions = new Vector3[2] { from, to };
 
         RaycastHit hit;
         if (Physics.Linecast(from, to, out hit))
         {
-            if (hit.transform.name == "Pacman")
+            if (hit.transform.tag == "Player")
             {
-                findPacman = true;
-                //Debug.Log("discovery pacman");
+                find = true;
             }
             else
             {
-                if (findPacman)
+                if (find)
                 {
-                    //Debug.Log("Lost sight!");
-                    findPacman = false;
+                    find = false;
                 }
             }
         }
 
-        line.startWidth = 0.2f;
-        line.endWidth = 0.2f;
+        if (GetComponent<LineRenderer>().enabled)
+        {
+            line.startWidth = 0.2f;
+            line.endWidth = 0.2f;
 
-        line.positionCount = positions.Length;
-        line.SetPositions(positions);
+            line.positionCount = positions.Length;
+            line.SetPositions(positions);
 
-        line.material.color = Color.red;
+            line.material.color = Color.red;
+        }
     }
 }

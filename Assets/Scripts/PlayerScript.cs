@@ -26,9 +26,14 @@ public class PlayerScript : MonoBehaviour
 
     bool freeze = true;
 
-    Direction dir;
+    Direction moveDir;
 
     LineRenderer line;
+
+    public Direction GetDirection()
+    {
+        return this.moveDir;
+    }
 
     public void Freeze()
     {
@@ -53,7 +58,7 @@ public class PlayerScript : MonoBehaviour
 
     public void LetsStart()
     {
-        this.dir = Direction.left;
+        this.moveDir = Direction.left;
         this.freeze = false;
         StartCoroutine(Pacpac());
     }
@@ -111,7 +116,7 @@ public class PlayerScript : MonoBehaviour
         {
             Vector3 from = transform.position;
             Vector3 to = new Vector3();
-            switch (this.dir)
+            switch (this.moveDir)
             {
                 case Direction.left:
                     to = from - transform.right * 3.0f;
@@ -142,7 +147,7 @@ public class PlayerScript : MonoBehaviour
             }
         }
 
-        Direction tmpdir = dir;
+        Direction tmpdir = moveDir;
 
         if (Input.GetKey(KeyCode.UpArrow))
         {
@@ -213,40 +218,40 @@ public class PlayerScript : MonoBehaviour
                 case Direction.down:
                     if (Mathf.Abs(transform.position.x -  rx) < 0.1f)
                     {
-                        dir = reservedir;
+                        moveDir = reservedir;
                     }
                     break;
                 case Direction.right:
                 case Direction.left:
                     if (Mathf.Abs(transform.position.z - rz) < 0.1f)
                     {
-                        dir = reservedir;
+                        moveDir = reservedir;
                     }
                     break;
             }
             reservedir = Direction.none;
         }
 
-        if ((int)dir >= 0 && (int)dir < 4)
+        if ((int)moveDir >= 0 && (int)moveDir < 4)
         {
-            switch (dirobj[(int)dir]) 
+            switch (dirobj[(int)moveDir]) 
             {
                 case '#':
                 case '-':
-                    switch (dir)
+                    switch (moveDir)
                     {
                         case Direction.right:
                         case Direction.left:
                             if (Mathf.Abs(transform.position.x - rx) < 0.01f)
                             {
-                                dir = Direction.none;
+                                moveDir = Direction.none;
                             }
                             break;
                         case Direction.up:
                         case Direction.down:
                             if (Mathf.Abs(transform.position.z - rz) < 0.01f)
                             {
-                                dir = Direction.none;
+                                moveDir = Direction.none;
                             }
                             break;
                     }
@@ -256,17 +261,17 @@ public class PlayerScript : MonoBehaviour
             }
         }
 
-        if (dir == Direction.left && transform.position.x < -15)
+        if (moveDir == Direction.left && transform.position.x < -15)
         {
             transform.position = new Vector3(15, transform.position.y, transform.position.z);
         }
 
-        if (dir == Direction.right && transform.position.x > 15)
+        if (moveDir == Direction.right && transform.position.x > 15)
         {
             transform.position = new Vector3(-15, transform.position.y, transform.position.z);
         }
 
-        Move(dir);
+        Move(moveDir);
     }
 
     public void Move(Direction d)

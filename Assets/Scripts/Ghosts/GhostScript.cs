@@ -11,7 +11,10 @@ public enum GhostState
     ready,
     search,
     usual,
-    ijike,
+    find,
+    lost,
+    sensing,
+    blue,
     eyes,
     gohome,
 }
@@ -23,14 +26,16 @@ public class GhostScript : MonoBehaviour
     public Transform targetObj;
     public Transform pacman;
 
-    public GameObject leftright;
-    public GameObject updown;
+    public GameObject defaultSkin;
+    public GameObject defaultlr;
+    public GameObject defaultud;
 
     public GameObject ijike;
 
-    public GameObject eyes;
+    public GameObject eyesSkin;
     public GameObject eyesLr;
     public GameObject eyesUd;
+
     public GameObject point;
 
     private readonly float baseSpeed = 0.1f;
@@ -129,6 +134,39 @@ public class GhostScript : MonoBehaviour
     Vector3 prePos;
     int stagnation = 0;
 
+    void ChangeSkin()
+    {
+        if (blue)
+        {
+            ijike.SetActive(true);
+
+            defaultSkin.SetActive(false);
+            defaultlr.SetActive(false);
+            defaultud.SetActive(false);
+
+            eyesSkin.SetActive(false);
+            eyesLr.SetActive(false);
+            eyesUd.SetActive(false);
+        }
+        else
+        {
+            ijike.SetActive(false);
+            switch (state)
+            {
+                case GhostState.eyes:
+                    eyesSkin.SetActive(true);
+                    defaultSkin.SetActive(false);
+                    break;
+                default:
+                    defaultSkin.SetActive(true);
+                    eyesSkin.SetActive(false);
+                    break;
+            }
+        }
+    }
+
+    bool find = false;
+
     private void Update()
     {
         //Debug.Log(tag + " freeze? " + this.freeze);
@@ -187,7 +225,20 @@ public class GhostScript : MonoBehaviour
             default: //chase
                 if (!blue)
                 {
-                    DefaultMovement();
+                    if (IsHitPacman())
+                    {
+                        Move(moveDir);
+                        find = true;
+                    } else
+                    {
+                        if (find)
+                        {
+                            targetObj.position = pacman.transform.position + AdjustPos(pacman.GetComponent<PlayerScript>().GetDirection());
+                            ChaseTarget();
+                            find = false;
+                        }
+                        DefaultMovement();
+                    }
                 }
                 else
                 {
@@ -215,6 +266,71 @@ public class GhostScript : MonoBehaviour
             }
             Reset();
         }
+    }
+
+    Vector3 AdjustPos(Direction pacmanDir)
+    {
+        Vector3 adjust = new Vector3(0, 0, 0);
+
+        switch (pacmanDir)
+        {
+            case Direction.left:
+                adjust = new Vector3(-1, 0, 0);
+                break;
+            case Direction.right:
+                adjust = new Vector3(1, 0, 0);
+                break;
+            case Direction.up:
+                adjust = new Vector3(0, 0, 1);
+                break;
+            case Direction.down:
+                adjust = new Vector3(0, 0, -1);
+                break;
+        }
+
+        return adjust;
+    }
+
+    bool IsHitPacman()
+    {
+        return IsHit("Player");
+    }
+
+    bool IsHit(string tagName)
+    {
+        Vector3 from = transform.position;
+        Vector3 to = new Vector3(0, 0, 0);
+
+        float sightLen = 27.0f;
+
+        switch (moveDir)
+        {
+            case Direction.left:
+                to = from - transform.right * sightLen;
+                break;
+            case Direction.right:
+                to = from + transform.right * sightLen;
+                break;
+            case Direction.up:
+                to = from + transform.forward * sightLen;
+                break;
+            case Direction.down:
+                to = from - transform.forward * sightLen;
+                break;
+        }
+
+        Vector3[] positions = { from, to };
+
+        RaycastHit hit;
+
+        if (Physics.Linecast(from, to, out hit))
+        {
+            if (hit.transform.tag == tagName)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void Reset()
@@ -271,11 +387,6 @@ public class GhostScript : MonoBehaviour
 
         if (blue)
         {
-            ijike.SetActive(true);
-
-            leftright.SetActive(false);
-            updown.SetActive(false);
-
             moveSpeed = 0.03f;
             blinkSpan = controller.GetBlueSpan() * 0.4f;
 
@@ -286,7 +397,6 @@ public class GhostScript : MonoBehaviour
         }
         else
         {
-            ijike.SetActive(false);
             moveSpeed = GetSpeed();
         }
     }
@@ -458,7 +568,7 @@ public class GhostScript : MonoBehaviour
                 }
                 break;
             case 3:
-                eyes.SetActive(false);
+                eyesSkin.SetActive(false);
                 eyesLr.SetActive(false);
                 eyesUd.SetActive(false);
                 state = GhostState.ready;
@@ -469,6 +579,66 @@ public class GhostScript : MonoBehaviour
                 break;
         }
         Move(moveDir);
+    }
+
+    void IjikeMovement()
+    {
+        moveDir = reverseDir(moveDir);
+
+        float rx = Mathf.Floor(transform.position.x) + 0.5f;
+        float rz = Mathf.Round(transform.position.z);
+
+        Vector3 coord = controller.Coord2Xz(transform.position);
+        //Vector3 coord = controller.Coord2Xz(new Vector3(rx, 0, rz));
+        int ix = (int)(coord.x + 13.5f);
+        int iz = Mathf.Abs((int)(coord.z - 15));
+
+        char objChar = map[iz][ix].objchar;
+
+        switch (moveDir)
+        {
+            case Direction.left:
+                objChar = map[iz][ix - 1].objchar;
+                ix--;
+                break;
+            case Direction.right:
+                objChar = map[iz][ix + 1].objchar;
+                ix++;
+                break;
+            case Direction.up:
+                objChar = map[iz + 1][ix].objchar;
+                iz++;
+                break;
+            case Direction.down:
+                objChar = map[iz - 1][ix].objchar;
+                iz--;
+                break;
+        }
+
+        ChaseTarget();
+    }
+
+    Direction reverseDir(Direction srcDir)
+    {
+        Direction dstDir = Direction.none;
+
+        switch (srcDir)
+        {
+            case Direction.left:
+                dstDir = Direction.right;
+                break;
+            case Direction.right:
+                dstDir = Direction.left;
+                break;
+            case Direction.up:
+                dstDir = Direction.down;
+                break;
+            case Direction.down:
+                dstDir = Direction.up;
+                break;
+        }
+
+        return dstDir;
     }
 
     void DefaultMovement()
@@ -582,6 +752,7 @@ public class GhostScript : MonoBehaviour
                 NextTarget();
                 break;
         }
+
         Move(moveDir);
     }
 
@@ -651,32 +822,6 @@ public class GhostScript : MonoBehaviour
         }
     }
 
-    // 動作確認用
-    void Updatexxx()
-    {
-        if (Input.GetKey(KeyCode.UpArrow))
-        {
-            ChangeDirection(Direction.up);
-        }
-        else if (Input.GetKey(KeyCode.DownArrow))
-        {
-            ChangeDirection(Direction.down);
-        }
-        else if (Input.GetKey(KeyCode.LeftArrow))
-        {
-            ChangeDirection(Direction.left);
-        }
-        else if (Input.GetKey(KeyCode.RightArrow))
-        {
-            ChangeDirection(Direction.right);
-        }
-        else
-        {
-
-        }
-        transform.Translate(new Vector3(Input.GetAxisRaw("Horizontal") * GetSpeed(), 0, Input.GetAxisRaw("Vertical") * GetSpeed()));
-    }
-
     public void SetDirection(Direction dir)
     {
         this.moveDir = dir;
@@ -689,73 +834,56 @@ public class GhostScript : MonoBehaviour
 
     public void ChangeDirection(Direction dir)
     {
+        ChangeSkin();
+
         if (!blue)
         {
             switch (dir)
             {
                 case Direction.left:
-                    switch (state) {
-                        case GhostState.eyes:
-                        case GhostState.gohome:
-                            eyesLr.SetActive(true);
-                            eyesUd.SetActive(false);
-                            eyesLr.transform.rotation = Quaternion.Euler(-90, 90, 90);
-                            break;
-                        default:
-                            leftright.SetActive(true);
-                            updown.SetActive(false);
-                            leftright.transform.rotation = Quaternion.Euler(270, -90, -90);
-                            break;
-                    }
+                    eyesLr.SetActive(true);
+                    eyesUd.SetActive(false);
+                    eyesLr.transform.rotation = Quaternion.Euler(-90, 90, 90);
+
+                    defaultlr.SetActive(true);
+                    defaultud.SetActive(false);
+                    defaultlr.transform.rotation = Quaternion.Euler(270, -90, -90);
+
                     break;
+
                 case Direction.right:
-                    switch (state)
-                    {
-                        case GhostState.eyes:
-                        case GhostState.gohome:
-                            eyesLr.SetActive(true);
-                            eyesUd.SetActive(false);
-                            eyesLr.transform.rotation = Quaternion.Euler(90, 90, 90);
-                            break;
-                        default:
-                            leftright.SetActive(true);
-                            updown.SetActive(false);
-                            leftright.transform.rotation = Quaternion.Euler(90, 0, 0);
-                            break;
-                    }
+                    eyesLr.SetActive(true);
+                    eyesUd.SetActive(false);
+                    eyesLr.transform.rotation = Quaternion.Euler(90, 90, 90);
+
+                    defaultlr.SetActive(true);
+                    defaultud.SetActive(false);
+                    defaultlr.transform.rotation = Quaternion.Euler(90, 0, 0);
+
                     break;
+
                 case Direction.up:
-                    switch (state)
-                    {
-                        case GhostState.eyes:
-                        case GhostState.gohome:
-                            eyesLr.SetActive(false);
-                            eyesUd.SetActive(true);
-                            eyesUd.transform.rotation = Quaternion.Euler(-90, 90, 90);
-                            break;
-                        default:
-                            leftright.SetActive(false);
-                            updown.SetActive(true);
-                            updown.transform.rotation = Quaternion.Euler(270, -90, -90);
-                            break;
-                    }
+                    eyesLr.SetActive(false);
+                    eyesUd.SetActive(true);
+                    eyesUd.transform.rotation = Quaternion.Euler(-90, 90, 90);
+
+                    defaultlr.SetActive(false);
+                    defaultud.SetActive(true);
+                    defaultud.transform.rotation = Quaternion.Euler(270, -90, -90);
+
                     break;
+
                 case Direction.down:
-                    switch (state)
-                    {
-                        case GhostState.eyes:
-                        case GhostState.gohome:
-                            eyesLr.SetActive(false);
-                            eyesUd.SetActive(true);
-                            eyesUd.transform.rotation = Quaternion.Euler(90, 90, 90);
-                            break;
-                        default:
-                            leftright.SetActive(false);
-                            updown.SetActive(true);
-                            updown.transform.rotation = Quaternion.Euler(90, 0, 0);
-                            break;
-                    }
+                    eyesLr.SetActive(false);
+                    eyesUd.SetActive(true);
+                    eyesUd.transform.rotation = Quaternion.Euler(90, 90, 90);
+
+                    defaultlr.SetActive(false);
+                    defaultud.SetActive(true);
+                    defaultud.transform.rotation = Quaternion.Euler(90, 0, 0);
+
                     break;
+
                 default:
                     break;
             }
@@ -851,6 +979,12 @@ public class GhostScript : MonoBehaviour
         agent.enabled = false;
     }
 
+    public void ChangeTarget(Vector3 pos)
+    {
+        targetObj.transform.position = pos;
+        ChaseTarget();
+    }
+
     public Vector3[] GetCorners()
     {
         return this.checkPoints;
@@ -863,7 +997,7 @@ public class GhostScript : MonoBehaviour
         if (blue)
         {
             switch (state) {
-                case GhostState.ijike:
+                case GhostState.blue:
                 case GhostState.eyes:
                 case GhostState.gohome:
                 case GhostState.waiting:
@@ -876,7 +1010,7 @@ public class GhostScript : MonoBehaviour
         {
             switch (state)
             {
-                case GhostState.ijike:
+                case GhostState.blue:
                 case GhostState.eyes:
                 case GhostState.gohome:
                     break;
@@ -895,8 +1029,7 @@ public class GhostScript : MonoBehaviour
         controller.Freeze();
 
         ijike.SetActive(false);
-        eyes.SetActive(true);
-        eyesLr.SetActive(true);
+        eyesSkin.SetActive(true);
 
         point.GetComponent<Text>().text = controller.GetEatGhostScore().ToString();
         point.transform.position = RectTransformUtility.WorldToScreenPoint(Camera.main, transform.position);
