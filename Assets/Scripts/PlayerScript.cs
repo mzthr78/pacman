@@ -372,7 +372,7 @@ public class PlayerScript : MonoBehaviour
 
     public void Reset()
     {
-        transform.position = new Vector3(0, 0, -8);
+        transform.position = new Vector3(0, 0.2f, -8);
         Move(Direction.left);
     }
 }

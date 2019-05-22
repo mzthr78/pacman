@@ -598,7 +598,9 @@ public class GhostScript : MonoBehaviour
         char objChar = map[iz][ix].objchar;
         Vector3 pos = transform.position;
 
-        while (objChar == '.' || objChar == ' ')
+        int count = 0;
+
+        while ((objChar == '.' || objChar == ' ') && count < 30)
         {
             pos = map[iz][ix].coordinate;
 
@@ -621,6 +623,7 @@ public class GhostScript : MonoBehaviour
                     iz--;
                     break;
             }
+            count++;
         }
 
         targetObj.position = pos;
