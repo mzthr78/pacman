@@ -394,6 +394,8 @@ public class GhostScript : MonoBehaviour
             ReverseBlue(false);
 
             StartCoroutine(BlinkBlue());
+
+            IjikeMovement();
         }
         else
         {
@@ -594,27 +596,34 @@ public class GhostScript : MonoBehaviour
         int iz = Mathf.Abs((int)(coord.z - 15));
 
         char objChar = map[iz][ix].objchar;
+        Vector3 pos = transform.position;
 
-        switch (moveDir)
+        while (objChar == '.' || objChar == ' ')
         {
-            case Direction.left:
-                objChar = map[iz][ix - 1].objchar;
-                ix--;
-                break;
-            case Direction.right:
-                objChar = map[iz][ix + 1].objchar;
-                ix++;
-                break;
-            case Direction.up:
-                objChar = map[iz + 1][ix].objchar;
-                iz++;
-                break;
-            case Direction.down:
-                objChar = map[iz - 1][ix].objchar;
-                iz--;
-                break;
+            pos = map[iz][ix].coordinate;
+
+            switch (moveDir)
+            {
+                case Direction.left:
+                    objChar = map[iz][ix - 1].objchar;
+                    ix--;
+                    break;
+                case Direction.right:
+                    objChar = map[iz][ix + 1].objchar;
+                    ix++;
+                    break;
+                case Direction.up:
+                    objChar = map[iz + 1][ix].objchar;
+                    iz++;
+                    break;
+                case Direction.down:
+                    objChar = map[iz - 1][ix].objchar;
+                    iz--;
+                    break;
+            }
         }
 
+        targetObj.position = pos;
         ChaseTarget();
     }
 
